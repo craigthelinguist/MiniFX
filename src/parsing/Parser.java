@@ -183,6 +183,8 @@ public class Parser {
 			throw new ParseException("Expected LAMBDA at begininng of lambda expression.");
 		List<Var> argNames = new ArrayList<>();
 		List<Type> argTypes = new ArrayList<>();
+		if (!gobble(LEFT_PAREN))
+			throw new ParseException("Expected ( to start function arguments of lambda.");
 		while (!gobble(RIGHT_PAREN)) {
 			if (!gobble(LEFT_PAREN))
 				throw new ParseException("( should start beginning of definition of function arguments");

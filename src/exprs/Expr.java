@@ -10,4 +10,8 @@ public interface Expr {
 	
 	public Type typeCheck(TypeContext ctx);
 	
+	public boolean equals(Object other);
+	
+	public int hashCode();
+	
 }

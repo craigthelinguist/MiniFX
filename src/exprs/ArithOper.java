@@ -1,5 +1,6 @@
 package exprs;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ctxs.Runtime;
@@ -97,6 +98,31 @@ public class ArithOper implements Expr {
 				throw new RuntimeException("Need to give Ints to arithmetic operators.");
 		}
 		return Types.IntType();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(args);
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ArithOper other = (ArithOper) obj;
+		if (operator != other.operator)
+			return false;
+		if (!Arrays.equals(args, other.args))
+			return false;
+		return true;
 	}
 
 }

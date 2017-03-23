@@ -39,4 +39,35 @@ public class Set implements Expr {
 		return Types.UnitType();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((exprToSet == null) ? 0 : exprToSet.hashCode());
+		result = prime * result + ((referenceToSet == null) ? 0 : referenceToSet.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Set other = (Set) obj;
+		if (exprToSet == null) {
+			if (other.exprToSet != null)
+				return false;
+		} else if (!exprToSet.equals(other.exprToSet))
+			return false;
+		if (referenceToSet == null) {
+			if (other.referenceToSet != null)
+				return false;
+		} else if (!referenceToSet.equals(other.referenceToSet))
+			return false;
+		return true;
+	}
+
 }

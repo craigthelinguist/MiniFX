@@ -1,5 +1,6 @@
 package exprs;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ctxs.Runtime;
@@ -38,6 +39,28 @@ public class Begin implements Expr {
 			type = expr.typeCheck(ctx);
 		}
 		return type;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(exprs);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Begin other = (Begin) obj;
+		if (!Arrays.equals(exprs, other.exprs))
+			return false;
+		return true;
 	}
 
 }

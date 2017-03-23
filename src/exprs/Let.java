@@ -1,5 +1,6 @@
 package exprs;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ctxs.Runtime;
@@ -47,6 +48,37 @@ public class Let implements Expr {
 			types[i] = toBinds[i].typeCheck(ctx);
 		}
 		return body.typeCheck(ctx.extend(varNames, types));
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result + Arrays.hashCode(toBinds);
+		result = prime * result + Arrays.hashCode(varNames);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Let other = (Let) obj;
+		if (body == null) {
+			if (other.body != null)
+				return false;
+		} else if (!body.equals(other.body))
+			return false;
+		if (!Arrays.equals(toBinds, other.toBinds))
+			return false;
+		if (!Arrays.equals(varNames, other.varNames))
+			return false;
+		return true;
 	}
 
 	

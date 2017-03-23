@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -10,14 +11,20 @@ import static org.junit.Assert.*;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import exprs.Application;
+import exprs.ArithOper;
 import exprs.BoolConst;
+import exprs.BoolOper;
 import exprs.Expr;
 import exprs.Exprs;
 import exprs.IntConst;
+import exprs.Lambda;
+import exprs.Var;
 import parsing.LexException;
 import parsing.Lexer;
 import parsing.ParseException;
 import parsing.Parser;
+import types.Arrow;
 import types.Type;
 import types.Types;
 
@@ -50,6 +57,7 @@ public class ParsingTests {
 	}
 	
 	private void shouldType(Expr ast, Type expected) {
+		System.out.println("fuck");
 		Type actual = ast.typeCheck(new TypeContext());
 		assertTrue(Types.equivalent(expected, actual));
 	}
@@ -170,5 +178,90 @@ public class ParsingTests {
 	public void xorTrueAndTrue() {
 		testProg("(xor true true)", Types.BoolType(), Exprs.False());
 	}
+	
+	@Test
+	public void lambdaOneArg() {
+		testProg("(LAMBDA ((x Int)) x)",
+				new Arrow(Types.IntType(), Types.IntType()),
+				idIntFunction());
+	}
+	
+	@Test
+	public void lambdaTwoArgs() {
+		testProg("(LAMBDA ((x Int) (y Int)) (+ x y))",
+				new Arrow(
+					Arrays.asList(
+							Types.IntType(),
+							Types.IntType()),
+					Types.IntType()),
+				addTwoIntsFunction());				
+	}
+	
+	@Test
+	public void lambdaBools() {
+		testProg("(LAMBDA ((x Bool) (y Bool)) (not (and x y)))",
+				new Arrow(Arrays.asList(
+					Types.BoolType(),
+					Types.BoolType()),
+				Types.BoolType()),
+				nandFunction());
+	}
+	
+	@Test
+	public void applyIdentity() {
+		testProg("((LAMBDA ((x Int)) x) 5)",
+				Types.IntType(),
+				new Application(Arrays.asList(
+					idIntFunction(), new IntConst(5))));
+	}
+	
+	@Test
+	public void applyNand() {
+		testProg("((LAMBDA ((x Bool) (y Bool)) (not (and x y))) true true)",
+				Types.BoolType(),
+				new Application(Arrays.asList(
+					nandFunction(), Exprs.True(), Exprs.True())));
+	}
+	
+	@Test
+	public void applyAdd() {
+		testProg("((LAMBDA ((x Int) (y Int)) (+ x y)) 5 10)",
+				Types.IntType(),
+				new Application(Arrays.asList(
+					addTwoIntsFunction(), new IntConst(5), new IntConst(10))));
+	}
+	
+	private Lambda idIntFunction() {
+		return new Lambda("x", Types.IntType(), new Var("x"));
+	}
+	
+	private Lambda addTwoIntsFunction() {
+		return new Lambda(
+				Arrays.asList(
+						new Var("x"),
+						new Var("y")),
+				Arrays.asList(
+						Types.IntType(),
+						Types.IntType()),
+				ArithOper.NewAdd(Arrays.asList(
+						new Var("x"),
+						new Var("y"))));	
+	}
+	
+	private Lambda nandFunction() {
+		return new Lambda(
+				Arrays.asList(
+						new Var("x"),
+						new Var("y")),
+				Arrays.asList(
+						Types.BoolType(),
+						Types.BoolType()),
+				BoolOper.NewNot(Arrays.asList(
+						BoolOper.NewAnd(Arrays.asList(
+								new Var("x"),
+								new Var("y"))))));
+	}
+	
+	
 	
 }

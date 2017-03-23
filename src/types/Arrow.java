@@ -1,5 +1,6 @@
 package types;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Arrow implements Type {
@@ -15,6 +16,16 @@ public class Arrow implements Type {
 		this.outputType = outputType;
 	}
 	
+	public Arrow(Type inputType, Type outputType) {
+		this.inputTypes = new Type[]{ inputType };
+		this.outputType = outputType;
+	}
+
+	public Arrow(Type[] inputTypes, Type outputType) {
+		this.inputTypes = inputTypes;
+		this.outputType = outputType;
+	}
+
 	public Type[] inputTypes() {
 		return this.inputTypes;
 	}
@@ -37,5 +48,14 @@ public class Arrow implements Type {
 		}
 		return true;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(inputTypes);
+		result = prime * result + ((outputType == null) ? 0 : outputType.hashCode());
+		return result;
+	}
+
 }
