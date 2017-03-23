@@ -63,4 +63,13 @@ public class Begin implements Expr {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		String[] children = new String[exprs.length];
+		for (int i = 0; i < children.length; i++) {
+			children[i] = exprs.toString();
+		}
+		return "(BEGIN " + String.join(" ", children) + ")";
+	}
+	
 }

@@ -17,4 +17,9 @@ public class Nil implements Expr {
 		return Types.UnitType();
 	}
 
+	@Override
+	public String toString() {
+		return "nil";
+	}
+	
 }

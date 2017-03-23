@@ -15,7 +15,17 @@ public class ArithOper implements Expr {
 	private OperType operator;
 	
 	private enum OperType {
-		PLUS, MINUS, TIMES, DIVIDE
+		PLUS, MINUS, TIMES, DIVIDE;
+		
+		public String toString() {
+			switch(this) {
+			case PLUS: return "+";
+			case MINUS: return "-";
+			case TIMES: return "*";
+			case DIVIDE: return "/";
+			default: return null;
+			}
+		}
 	}
 	
 	public static ArithOper NewAdd(List<Expr> args) {
@@ -63,26 +73,26 @@ public class ArithOper implements Expr {
 		case PLUS:
 			int sum = 0;
 			for (int i = 0; i < args.length; i++) {
-				sum += ((IntConst)args[i]).asInt();
+				sum += ((IntConst)args[i].reduce(rtm)).asInt();
 			}
 			return new IntConst(sum);
 		case TIMES:
 			int product = 1;
 			for (int i = 0; i < args.length; i++) {
-				product *= ((IntConst)args[i]).asInt();
+				product *= ((IntConst)args[i].reduce(rtm)).asInt();
 			}
 			return new IntConst(product);
 		case DIVIDE:
 			int divResult = ((IntConst)args[0]).asInt();
 			for (int i = 1; i < args.length; i++) {
-				divResult /= ((IntConst)args[i]).asInt();
+				divResult /= ((IntConst)args[i].reduce(rtm)).asInt();
 			}
 			return new IntConst(divResult);
 		case MINUS:
 			if (args.length == 1) return new IntConst(-((IntConst)args[0]).asInt());
 			int result = ((IntConst)args[0]).asInt();
 			for (int i = 1 ; i < args.length; i++) {
-				result -= ((IntConst)args[i]).asInt();
+				result -= ((IntConst)args[i].reduce(rtm)).asInt();
 			}
 			return new IntConst(result);
 		default:
@@ -125,4 +135,15 @@ public class ArithOper implements Expr {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		String[] children = new String[args.length + 1];
+		children[0] = operator.toString();
+		for (int i = 1; i < children.length; i++) {
+			children[i] = args[i-1].toString();
+		}
+		return "(" + String.join(" ", children) + ")";
+	}
+	
 }
+

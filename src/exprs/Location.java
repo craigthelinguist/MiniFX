@@ -48,4 +48,9 @@ public class Location implements Expr {
 		throw new RuntimeException("Location is a runtime form and does not typecheck.");
 	}
 
+	@Override
+	public String toString() {
+		return "(LOCATION " + location + ")";
+	}
+	
 }

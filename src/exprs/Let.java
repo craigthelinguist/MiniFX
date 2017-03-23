@@ -81,6 +81,13 @@ public class Let implements Expr {
 		return true;
 	}
 
-	
+	@Override
+	public String toString() {
+		String[] bindings = new String[varNames.length];
+		for (int i = 0; i < bindings.length; i++) {
+			bindings[i] = "(" + varNames + " " + toBinds + ")";
+		}
+		return "(LET " + String.join(" ", bindings) + " " + body + ")";
+	}
 	
 }

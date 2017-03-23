@@ -53,4 +53,9 @@ public class BoolConst implements Expr {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return value ? "true" : "false";
+	}
+	
 }

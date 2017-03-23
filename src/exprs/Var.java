@@ -14,7 +14,7 @@ public class Var implements Expr {
 	
 	@Override
 	public Expr reduce(Runtime ctx) {
-		if (ctx.hasBinding(name))
+		if (!ctx.hasBinding(name))
 			throw new RuntimeException("Variable " + name + " is undefined");
 		return ctx.lookupVariable(name);
 	}
@@ -54,4 +54,9 @@ public class Var implements Expr {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+	
 }

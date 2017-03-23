@@ -7,4 +7,9 @@ public class Bool implements Type {
 		return other instanceof Bool;
 	}
 
+	@Override
+	public String toString() {
+		return "Bool";
+	}
+	
 }

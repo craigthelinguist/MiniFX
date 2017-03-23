@@ -6,4 +6,10 @@ public class Unit implements Type {
 	public boolean subtypeOf(Type other) {
 		return other instanceof Unit;
 	}
+	
+	@Override
+	public String toString() {
+		return "Unit";
+	}
+	
 }

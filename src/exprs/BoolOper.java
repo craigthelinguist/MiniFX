@@ -1,5 +1,6 @@
 package exprs;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ctxs.Runtime;
@@ -14,7 +15,17 @@ public class BoolOper implements Expr {
 	private Expr[] args;
 	
 	private enum OperType {
-		AND, OR, XOR, NOT
+		AND, OR, XOR, NOT;
+		
+		public String toString() {
+			switch (this) {
+			case AND: return "and";
+			case OR: return "or";
+			case XOR: return "xor";
+			case NOT: return "not";
+			default: return null;
+			}
+		}
 	}
 	
 	public static BoolOper NewAnd(List<Expr> exprs) {
@@ -75,11 +86,11 @@ public class BoolOper implements Expr {
 		case XOR:
 			unit = ((BoolConst)args[0]).asBool();
 			for (int i = 1; i < args.length; i++) {
-				unit = ((BoolConst)args[i]).asBool() != unit;
+				unit = ((BoolConst)args[i].reduce(rtm)).asBool() != unit;
 			}
 			return unit ? Exprs.True() : Exprs.False();
 		case NOT:
-			boolean val = ((BoolConst)args[0]).asBool();
+			boolean val = ((BoolConst)args[0].reduce(rtm)).asBool();
 			return val ? Exprs.False() : Exprs.True();
 		default:
 			throw new RuntimeException("Operator " + operator + " not yet implemented.");
@@ -96,6 +107,40 @@ public class BoolOper implements Expr {
 		return Types.BoolType();
 	}
 	
-	
+	@Override
+	public String toString() {
+		String[] children = new String[args.length + 1];
+		children[0] = operator.toString();
+		for (int i = 1; i < children.length; i++) {
+			children[i] = args[i-1].toString();
+		}
+		return "(" + String.join(" ", children) + ")";
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(args);
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BoolOper other = (BoolOper) obj;
+		if (!Arrays.equals(args, other.args))
+			return false;
+		if (operator != other.operator)
+			return false;
+		return true;
+	}
 	
 }

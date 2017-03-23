@@ -57,7 +57,6 @@ public class ParsingTests {
 	}
 	
 	private void shouldType(Expr ast, Type expected) {
-		System.out.println("fuck");
 		Type actual = ast.typeCheck(new TypeContext());
 		assertTrue(Types.equivalent(expected, actual));
 	}
@@ -211,24 +210,21 @@ public class ParsingTests {
 	public void applyIdentity() {
 		testProg("((LAMBDA ((x Int)) x) 5)",
 				Types.IntType(),
-				new Application(Arrays.asList(
-					idIntFunction(), new IntConst(5))));
+				new IntConst(5));
 	}
 	
 	@Test
 	public void applyNand() {
 		testProg("((LAMBDA ((x Bool) (y Bool)) (not (and x y))) true true)",
 				Types.BoolType(),
-				new Application(Arrays.asList(
-					nandFunction(), Exprs.True(), Exprs.True())));
+				Exprs.False());
 	}
 	
 	@Test
 	public void applyAdd() {
 		testProg("((LAMBDA ((x Int) (y Int)) (+ x y)) 5 10)",
 				Types.IntType(),
-				new Application(Arrays.asList(
-					addTwoIntsFunction(), new IntConst(5), new IntConst(10))));
+				new IntConst(15));
 	}
 	
 	private Lambda idIntFunction() {

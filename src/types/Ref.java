@@ -19,4 +19,9 @@ public class Ref implements Type {
 		return this.contents;
 	}
 	
+	@Override
+	public String toString() {
+		return "Ref[" + contents + "]";
+	}
+	
 }

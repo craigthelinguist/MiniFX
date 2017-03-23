@@ -56,4 +56,10 @@ public class Get implements Expr {
 		return reference.componentType();
 	}
 
+	@Override
+	public String toString() {
+		return "(GET " + refToGet + ")";
+	}
+	
 }
+

@@ -75,4 +75,12 @@ public class If implements Expr {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "(IF " + guard + " " + trueBranch + " " + falseBranch + ")";
+	}
+	
 }
+
+
+

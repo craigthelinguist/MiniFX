@@ -59,4 +59,9 @@ public class New implements Expr {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return "(NEW " + this.componentType + " " + this.value + ")";
+	}
+	
 }

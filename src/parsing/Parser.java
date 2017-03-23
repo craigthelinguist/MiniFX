@@ -68,13 +68,13 @@ public class Parser {
 		if (gobble(LEFT_PAREN)) {
 			if (isKeyword(tokens.get(i))) {
 				Expr xpr = parseKeyword();
-				if (!match(RIGHT_PAREN))
+				if (!gobble(RIGHT_PAREN))
 					throw new ParseException(RIGHT_PAREN + " must close a compound expression, but got " + tokens.get(i));
 				return xpr;
 			}
 			else if (isOperator(tokens.get(i))) {
 				Expr xpr = parseOperator();
-				if (!match(RIGHT_PAREN))
+				if (!gobble(RIGHT_PAREN))
 					throw new ParseException(RIGHT_PAREN + " must close a compound expression, but got " + tokens.get(i));
 				return xpr;
 			}
@@ -238,7 +238,7 @@ public class Parser {
 			throw new ParseException(tokens.get(i) + " is not a valid arithmetic operator.");
 		String operator = tokens.get(i++);
 		List<Expr> exprs = new ArrayList<>();
-		while (!tokens.get(i).equals(RIGHT_PAREN)) {
+		while (!match(RIGHT_PAREN)) {
 			exprs.add(parseExpr());
 		}
 		switch(operator) {
@@ -255,7 +255,7 @@ public class Parser {
 			throw new ParseException(tokens.get(i) + " is not a valid boolean operator.");	
 		String operator = tokens.get(i++); 
 		List<Expr> exprs = new ArrayList<>();
-		while (!tokens.get(i).equals(RIGHT_PAREN)) {
+		while (!match(RIGHT_PAREN)) {
 			exprs.add(parseExpr());
 		}
 		switch(operator) {

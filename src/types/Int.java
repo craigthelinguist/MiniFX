@@ -7,4 +7,9 @@ public class Int implements Type {
 		return other instanceof Int;
 	}
 
+	@Override
+	public String toString() {
+		return "Int";
+	}
+	
 }

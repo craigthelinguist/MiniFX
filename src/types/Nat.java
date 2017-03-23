@@ -7,5 +7,9 @@ public class Nat implements Type {
 		return other instanceof Nat || other instanceof Int;
 	}
 	
+	@Override
+	public String toString() {
+		return "Nat";
+	}
 
 }

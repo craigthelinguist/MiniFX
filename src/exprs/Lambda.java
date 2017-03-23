@@ -14,6 +14,7 @@ public class Lambda implements Expr {
 	private String[] argNames;
 	private Type[] argTypes;
 	private Expr lambdaBody;
+	private Type outputType;
 	
 	public Lambda(List<Var> argNames2, List<Type> argTypes, Expr body) {
 		if (argNames2.size() != argTypes.size()) 
@@ -46,12 +47,14 @@ public class Lambda implements Expr {
 			argsReduced[i] = actualArgs[i].reduce(rtm);
 		}
 		Runtime extended = rtm.extend(argNames, argsReduced);
-		return lambdaBody.reduce(extended);
+		Expr lambBodyReduced = lambdaBody.reduce(extended);
+		return lambBodyReduced;
 	}
 	
 	@Override
 	public Type typeCheck(TypeContext ctx) {
 		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes));
+		this.outputType = bodyType;
 		return new Arrow(argTypes, bodyType);
 	}
 	
@@ -68,7 +71,9 @@ public class Lambda implements Expr {
 	}
 
 	public Type outputType() {
-		return this.outputType();
+		if (this.outputType == null)
+			throw new RuntimeException("Must type this first.");
+		return this.outputType;
 	}
 	
 	@Override
@@ -97,6 +102,17 @@ public class Lambda implements Expr {
 				return false;
 		}
 		return this.lambdaBody.equals(other.lambdaBody);
+	}
+	
+	@Override
+	public String toString() {
+		
+		String[] types = new String[argTypes.length];
+		for (int i = 0; i < types.length; i++) {
+			types[i] = "(" + argNames[i] + " " + argTypes[i].toString() + ")";
+		}
+		
+		return "(LAMBDA (" + String.join(" ", types) + ") " + lambdaBody + ")";
 	}
 	
 }

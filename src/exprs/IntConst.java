@@ -50,4 +50,9 @@ public class IntConst implements Expr {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return "" + value;
+	}
+	
 }

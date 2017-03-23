@@ -57,5 +57,14 @@ public class Arrow implements Type {
 		result = prime * result + ((outputType == null) ? 0 : outputType.hashCode());
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		String[] inputs = new String[inputTypes.length];
+		for (int i = 0; i < inputs.length; i++) {
+			inputs[i] = inputTypes[i].toString();
+		}
+		return String.join(" x ", inputs) + " --> " + outputType;
+	}
 
 }
