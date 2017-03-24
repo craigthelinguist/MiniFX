@@ -2,6 +2,7 @@ package exprs;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import types.Ref;
 import types.Type;
 
 public class New implements Expr {
@@ -25,7 +26,7 @@ public class New implements Expr {
 		Type valueType = value.typeCheck(ctx);
 		if (!(valueType.subtypeOf(componentType)))
 			throw new RuntimeException("Initialising reference with something of inappropriate type.");
-		return componentType;
+		return new Ref(componentType);
 	}
 
 	@Override

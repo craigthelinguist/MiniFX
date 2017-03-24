@@ -95,7 +95,6 @@ public class Parser {
 			return tokens.get(i++).equals("true") ? new BoolConst(true) : new BoolConst(false);
 		}
 		else if (gobble("nil")) {
-			i++;
 			return Exprs.Nil();
 		}
 		else if (isIdentifier(tokens.get(i))) {
@@ -210,7 +209,7 @@ public class Parser {
 		if (!gobble("BEGIN"))
 			throw new ParseException("Expected BEGIN at start of sequential execution block.");
 		List<Expr> exprs = new ArrayList<>();
-		while (!gobble(RIGHT_PAREN)) {
+		while (!match(RIGHT_PAREN)) {
 			exprs.add(parseExpr());
 		}
 		return new Begin(exprs);
@@ -301,9 +300,9 @@ public class Parser {
 	}
 	
 	private boolean isKeyword(String token) {
-		token = token.toLowerCase();
 		for (int i = 0; i < KEYWORDS.size(); i++) {
-			if (KEYWORDS.get(i).toLowerCase().equals(token))
+			String kw = KEYWORDS.get(i);
+			if (KEYWORDS.get(i).equals(token))
 				return true;
 		}
 		return false;

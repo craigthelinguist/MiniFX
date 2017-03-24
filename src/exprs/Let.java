@@ -22,11 +22,11 @@ public class Let implements Expr {
 	public Let(List<Var> namesToBind, List<Expr> exprs, Expr body) {
 		if (exprs.size() != namesToBind.size()) 
 			throw new RuntimeException("Must have a binding for every expression.");
-		String[] varNames = new String[namesToBind.size()];
-		Expr[] toBinds = new Expr[exprs.size()];
+		this.varNames = new String[namesToBind.size()];
+		this.toBinds = new Expr[exprs.size()];
 		for (int i = 0; i < exprs.size(); i++) {
-			varNames[i] = namesToBind.get(i).getName();
-			toBinds[i] = exprs.get(i);
+			this.varNames[i] = namesToBind.get(i).getName();
+			this.toBinds[i] = exprs.get(i);
 		}
 		this.body = body;
 	}

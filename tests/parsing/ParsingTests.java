@@ -11,20 +11,20 @@ import static org.junit.Assert.*;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
-import exprs.Application;
 import exprs.ArithOper;
-import exprs.BoolConst;
 import exprs.BoolOper;
 import exprs.Expr;
 import exprs.Exprs;
 import exprs.IntConst;
 import exprs.Lambda;
+import exprs.Location;
 import exprs.Var;
 import parsing.LexException;
 import parsing.Lexer;
 import parsing.ParseException;
 import parsing.Parser;
 import types.Arrow;
+import types.Ref;
 import types.Type;
 import types.Types;
 
@@ -58,6 +58,7 @@ public class ParsingTests {
 	
 	private void shouldType(Expr ast, Type expected) {
 		Type actual = ast.typeCheck(new TypeContext());
+		System.out.println();
 		assertTrue(Types.equivalent(expected, actual));
 	}
 	
@@ -225,6 +226,75 @@ public class ParsingTests {
 		testProg("((LAMBDA ((x Int) (y Int)) (+ x y)) 5 10)",
 				Types.IntType(),
 				new IntConst(15));
+	}
+	
+	@Test
+	public void letIdentity() {
+		testProg("(LET ((x 5)) x)",
+				Types.IntType(),
+				new IntConst(5));
+	}
+	
+	@Test
+	public void letAdd() {
+		testProg("(LET ((x 5) (y 10)) (+ x y))",
+				Types.IntType(),
+				new IntConst(15));
+	}
+	
+	@Test
+	public void lambdaNoArgs() {
+		testProg("((LAMBDA () 3) nil)",
+				Types.IntType(),
+				new IntConst(3));
+	}
+	
+	@Test
+	public void lambdaNoArgs2() {
+		testProg("(LET ((f (LAMBDA () 5))) (f nil))",
+				Types.IntType(),
+				new IntConst(5));
+	}
+	
+	@Test
+	public void newRef() {
+		testProg("(NEW Int 5)",
+				new Ref(Types.IntType()),
+				new Location(0));
+	}
+	
+	@Test
+	public void readRef() {
+		testProg("(GET (NEW Int 5))",
+				Types.IntType(),
+				new IntConst(5));
+	}
+	
+	@Test
+	public void letWithRef() {
+		testProg("(LET ((loc (NEW Int 5))) (GET loc))",
+				Types.IntType(),
+				new IntConst(5));
+	}
+	
+	@Test
+	public void setRef() {
+		testProg("(LET ((loc (NEW Int 5)))"
+			   + "    (LET ((x (SET loc 10)))"
+			   + "         (GET loc))) ",
+			   Types.IntType(),
+			   new IntConst(10));
+	}
+	
+	@Test
+	public void beginBlock() {
+		testProg("(LET ((r (NEW Int 5)))"
+			   + "    (BEGIN"
+			   + "        (SET r 10)"
+			   + "        (SET r 15)"
+			   + "        (GET r)))",
+			   Types.IntType(),
+			   new IntConst(15));
 	}
 	
 	private Lambda idIntFunction() {

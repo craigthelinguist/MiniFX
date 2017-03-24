@@ -8,6 +8,7 @@ import ctxs.TypeContext;
 import exprs.Expr;
 import types.Arrow;
 import types.Type;
+import types.Unit;
 
 public class Application implements Expr {
 
@@ -37,23 +38,35 @@ public class Application implements Expr {
 	public Type typeCheck(TypeContext ctx) {
 		
 		// First thing in an application must be a function.
-		Type funcType = firstArg.typeCheck(ctx);
-		if (!(funcType instanceof Arrow))
+		Type type = firstArg.typeCheck(ctx);
+		if (!(type instanceof Arrow))
 			throw new RuntimeException("First thing in an application must be a function.");
-		Lambda function = (Lambda) firstArg;
+		Arrow funcType = (Arrow) type;
 		
-		// Check you've supplied right number of arguments.
-		if (function.numArgs() != rest.length)
+		// Check you've supplied right number of arguments to null-ary function.
+		if (funcType.numArgs() == 0 && rest.length != 1)
 			throw new RuntimeException("Wrong number of arguments supplied.");
 		
+		// Check you've supplied right number of arguments to non null-ary function.
+		if (funcType.numArgs() > 0 && funcType.numArgs() != rest.length)
+			throw new RuntimeException("Wrong number of arguments supplied.");
+		
+		// This is a null-ary function; make sure you're passing nil.
+		if (funcType.numArgs() == 0) {
+			Type input = rest[0].typeCheck(ctx);
+			if (!(input instanceof Unit))
+				throw new RuntimeException("Must pass nil to a null-ary function.");
+			return funcType.outputType();
+		}
+		
 		// Check actual argument types are compatible with formal argument types.
-		Type[] formalTypes = function.getTypes();		
+		Type[] formalTypes = funcType.inputTypes();		
 		for (int i = 1; i < rest.length; i++) {
 			Type actualType = rest[i-1].typeCheck(ctx);
 			if (!actualType.subtypeOf(formalTypes[i-1]))
 				throw new RuntimeException("Actual input argument must be subtype of formal argument.");
 		}
-		return function.outputType();
+		return funcType.outputType();
 
 	}
 

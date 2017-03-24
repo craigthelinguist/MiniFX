@@ -60,11 +60,21 @@ public class Arrow implements Type {
 	
 	@Override
 	public String toString() {
-		String[] inputs = new String[inputTypes.length];
-		for (int i = 0; i < inputs.length; i++) {
-			inputs[i] = inputTypes[i].toString();
+		String[] inputs = null;
+		if (inputs.length == 0) {
+			inputs = new String[]{ "Unit" };
+		}
+		else {
+			inputs = new String[inputTypes.length];
+			for (int i = 0; i < inputs.length; i++) {
+				inputs[i] = inputTypes[i].toString();
+			}
 		}
 		return String.join(" x ", inputs) + " --> " + outputType;
+	}
+
+	public int numArgs() {
+		return inputTypes.length;
 	}
 
 }

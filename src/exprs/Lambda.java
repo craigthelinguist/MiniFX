@@ -40,13 +40,20 @@ public class Lambda implements Expr {
 	}
 	
 	public Expr apply(Runtime rtm, Expr[] actualArgs) {
-		if (actualArgs.length != argNames.length)
+		if (argNames.length == 0 && actualArgs.length != 1)
 			throw new RuntimeException("Wrong number of arguments supplied to function.");
-		Expr[] argsReduced = new Expr[actualArgs.length];
-		for (int i = 0; i < argsReduced.length; i++) {
-			argsReduced[i] = actualArgs[i].reduce(rtm);
+		if (argNames.length > 0 && actualArgs.length != argNames.length)
+			throw new RuntimeException("Wrong number of arguments supplied to function.");
+		
+		Runtime extended = rtm;
+		if (argNames.length > 0) {
+			Expr[] argsReduced = new Expr[actualArgs.length];
+			for (int i = 0; i < argsReduced.length; i++) {
+				argsReduced[i] = actualArgs[i].reduce(rtm);
+			}
+			extended = rtm.extend(argNames, argsReduced);
 		}
-		Runtime extended = rtm.extend(argNames, argsReduced);
+		
 		Expr lambBodyReduced = lambdaBody.reduce(extended);
 		return lambBodyReduced;
 	}
