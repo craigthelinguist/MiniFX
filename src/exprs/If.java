@@ -1,7 +1,10 @@
 package exprs;
 
+import java.util.Set;
+
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Bool;
 import types.Type;
 import types.Types;
@@ -78,6 +81,14 @@ public class If implements Expr {
 	@Override
 	public String toString() {
 		return "(IF " + guard + " " + trueBranch + " " + falseBranch + ")";
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		Set<Effect> fx = guard.effectCheck(ctx);
+		fx.addAll(trueBranch.effectCheck(ctx));
+		fx.addAll(falseBranch.effectCheck(ctx));
+		return fx;
 	}
 	
 }

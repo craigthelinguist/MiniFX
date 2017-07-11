@@ -1,11 +1,13 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import exprs.Expr;
+import fx.Effect;
 import types.Arrow;
 import types.Type;
 import types.Unit;
@@ -99,6 +101,12 @@ public class Application implements Expr {
 			children[i] = rest[i].toString();
 		}
 		return "(" + firstArg + " " + String.join(" ", children) + ")";
+	}
+
+	@Override
+	public HashSet<Effect> effectCheck(TypeContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

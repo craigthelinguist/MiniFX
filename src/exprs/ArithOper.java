@@ -2,9 +2,11 @@ package exprs;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Int;
 import types.Type;
 import types.Types;
@@ -143,6 +145,12 @@ public class ArithOper implements Expr {
 			children[i] = args[i-1].toString();
 		}
 		return "(" + String.join(" ", children) + ")";
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

@@ -1,7 +1,10 @@
 package exprs;
 
+import java.util.Set;
+
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Ref;
 import types.Type;
 
@@ -59,6 +62,12 @@ public class Get implements Expr {
 	@Override
 	public String toString() {
 		return "(GET " + refToGet + ")";
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

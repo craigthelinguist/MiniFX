@@ -6,11 +6,13 @@ public class Types {
 	private static final Nat NAT_TYPE = new Nat();
 	private static final Int INT_TYPE = new Int();
 	private static final Unit UNIT_TYPE = new Unit();
+	private static final Region REGION_TYPE = new Region();
 	
 	public static Bool BoolType(){ return BOOL_TYPE; }
 	public static Nat NatType(){ return NAT_TYPE; }
 	public static Int IntType(){ return INT_TYPE; }
 	public static Type UnitType(){ return UNIT_TYPE; }
+	public static Region RegionType(){ return REGION_TYPE; }
 	
 	public static Type leastUpperBound(Type t1, Type t2) {
 		

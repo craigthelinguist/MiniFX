@@ -1,7 +1,11 @@
 package exprs;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Type;
 import types.Types;
 
@@ -49,6 +53,11 @@ public class NatConst implements Expr {
 	@Override
 	public String toString() {
 		return "" + value;
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		return new HashSet<>();
 	}
 	
 }

@@ -103,6 +103,16 @@ public class BasicParsingTests {
 	}
 	
 	@Test
+	public void conditional() {
+		Utils.TestProg("(IF true 1 0)", Types.IntType(), new IntConst(1));
+	}
+	
+	@Test
+	public void conditional2() {
+		Utils.TestProg("(IF false 1 0)",  Types.IntType(), new IntConst(0));
+	}
+	
+	@Test
 	public void lambdaOneArg() {
 		Utils.TestProg("(LAMBDA ((x Int)) x)",
 				new Arrow(Types.IntType(), Types.IntType()),
@@ -181,28 +191,28 @@ public class BasicParsingTests {
 	
 	@Test
 	public void newRef() {
-		Utils.TestProg("(NEW Int 5)",
+		Utils.TestProg("(REF (NEW-REGION) Int 5)",
 				new Ref(Types.IntType()),
 				new Location(0));
 	}
 	
 	@Test
 	public void readRef() {
-		Utils.TestProg("(GET (NEW Int 5))",
+		Utils.TestProg("(GET (REF (NEW-REGION) Int 5))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void letWithRef() {
-		Utils.TestProg("(LET ((loc (NEW Int 5))) (GET loc))",
+		Utils.TestProg("(LET ((loc (REF (NEW-REGION) Int 5))) (GET loc))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void setRef() {
-		Utils.TestProg("(LET ((loc (NEW Int 5)))"
+		Utils.TestProg("(LET ((loc (REF (NEW-REGION) Int 5)))"
 			   + "    (LET ((x (SET loc 10)))"
 			   + "         (GET loc))) ",
 			   Types.IntType(),
@@ -211,7 +221,7 @@ public class BasicParsingTests {
 	
 	@Test
 	public void beginBlock() {
-		Utils.TestProg("(LET ((r (NEW Int 5)))"
+		Utils.TestProg("(LET ((r (REF (NEW-REGION) Int 5)))"
 			   + "    (BEGIN"
 			   + "        (SET r 10)"
 			   + "        (SET r 15)"

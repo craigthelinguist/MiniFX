@@ -19,9 +19,9 @@ public class ScopingTests {
 	
 	@Test
 	public void testReferenceShadowing() {
-		Utils.TestProg("(LET ((r (NEW Int 5)))"
+		Utils.TestProg("(LET ((r (REF (NEW-REGION) Int 5)))"
 				     + "     (BEGIN"
-				     + "         (LET ((r (NEW Int 5)))"
+				     + "         (LET ((r (REF (NEW-REGION) Int 5)))"
 				     + "             (SET r 20))"
 				     + "         (GET r)))",
 			   Types.IntType(),

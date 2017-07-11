@@ -1,10 +1,13 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Type;
 import types.Types;
 import types.Bool;
@@ -108,6 +111,15 @@ public class BoolOper implements Expr {
 	}
 	
 	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		Set<Effect> subfx = new HashSet<>();
+		for (Expr expr : args) {
+			subfx.addAll(expr.effectCheck(ctx));
+		}
+		return subfx;
+	}
+	
+	@Override
 	public String toString() {
 		String[] children = new String[args.length + 1];
 		children[0] = operator.toString();
@@ -142,5 +154,6 @@ public class BoolOper implements Expr {
 			return false;
 		return true;
 	}
+
 	
 }

@@ -9,26 +9,21 @@ import fx.Effect;
 import types.Type;
 import types.Types;
 
-public class Nil implements Expr {
+public class NewRegion implements Expr {
 
 	@Override
-	public Expr reduce(Runtime ctx) {
-		return this;
+	public Expr reduce(Runtime rtm) {
+		return rtm.makeRegion();
 	}
 
 	@Override
 	public Type typeCheck(TypeContext ctx) {
-		return Types.UnitType();
+		return Types.RegionType();
 	}
 
 	@Override
 	public Set<Effect> effectCheck(TypeContext ctx) {
 		return new HashSet<>();
 	}
-	
-	@Override
-	public String toString() {
-		return "nil";
-	}
-	
+
 }

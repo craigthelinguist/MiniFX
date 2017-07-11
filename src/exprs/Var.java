@@ -1,7 +1,11 @@
 package exprs;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Type;
 
 public class Var implements Expr {
@@ -57,6 +61,11 @@ public class Var implements Expr {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		return new HashSet<>();
 	}
 	
 }

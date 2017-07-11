@@ -1,10 +1,13 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Arrow;
 import types.Type;
 import types.Types;
@@ -120,6 +123,11 @@ public class Lambda implements Expr {
 		}
 		
 		return "(LAMBDA (" + String.join(" ", types) + ") " + lambdaBody + ")";
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		return new HashSet<>();
 	}
 	
 }

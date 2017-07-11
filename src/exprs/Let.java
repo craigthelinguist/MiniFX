@@ -1,10 +1,13 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Type;
 
 public class Let implements Expr {
@@ -88,6 +91,19 @@ public class Let implements Expr {
 			bindings[i] = "(" + varNames + " " + toBinds + ")";
 		}
 		return "(LET " + String.join(" ", bindings) + " " + body + ")";
+	}
+	
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		Set<Effect> fx = new HashSet<>();
+		for (Expr expr : toBinds) {
+			fx.addAll(expr.effectCheck(ctx));
+		}
+		Type[] types = new Type[toBinds.length];
+		for (int i = 0; i < toBinds.length; i++) {
+			types[i] = toBinds[i].typeCheck(ctx);
+		}
+		return body.effectCheck(ctx.extend(varNames, types));
 	}
 	
 }

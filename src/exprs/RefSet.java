@@ -1,17 +1,20 @@
 package exprs;
 
+import java.util.Set;
+
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Ref;
 import types.Type;
 import types.Types;
 
-public class Set implements Expr {
+public class RefSet implements Expr {
 
 	private Expr referenceToSet;
 	private Expr exprToSet;
 	
-	public Set(Expr ref, Expr val) {
+	public RefSet(Expr ref, Expr val) {
 		this.referenceToSet = ref;
 		this.exprToSet = val;
 	}
@@ -56,7 +59,7 @@ public class Set implements Expr {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Set other = (Set) obj;
+		RefSet other = (RefSet) obj;
 		if (exprToSet == null) {
 			if (other.exprToSet != null)
 				return false;
@@ -73,6 +76,12 @@ public class Set implements Expr {
 	@Override
 	public String toString() {
 		return "(SET " + referenceToSet + " " + exprToSet + ")";
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

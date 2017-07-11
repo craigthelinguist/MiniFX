@@ -1,10 +1,13 @@
 package ctxs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import exprs.Expr;
 import exprs.Location;
+import exprs.RegionConst;
 
 public class Runtime {
 
@@ -12,11 +15,14 @@ public class Runtime {
 	
 	private Map<String, Expr> varMapping;
 
+	private Map<RegionConst, List<Location>> regions;
+	
 	private static int LocationCounter = 0;
 	
 	public Runtime() {
 		this.store = new HashMap<>();
 		this.varMapping = new HashMap<>();
+		this.regions = new HashMap<>();
 	}
 	
 	private Runtime(Runtime other) {
@@ -59,9 +65,10 @@ public class Runtime {
 		return store.get(loc.getLocation());
 	}
 	
-	public Location allocate(Expr value) {
+	public Location allocate(RegionConst region, Expr init) {
 		Location location = new Location(Runtime.LocationCounter++);
-		this.store.put(location.getLocation(), value);
+		this.regions.get(region).add(location);
+		this.store.put(location.getLocation(), init);
 		return location;
 	}
 	
@@ -71,5 +78,10 @@ public class Runtime {
 		this.store.put(loc.getLocation(), value);
 	}
 
+	public RegionConst makeRegion() {
+		RegionConst newRegion = RegionConst.NewRegion();
+		regions.put(newRegion, new ArrayList<>());
+		return newRegion;
+	}
+	
 }
-

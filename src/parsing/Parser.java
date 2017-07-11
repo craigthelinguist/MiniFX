@@ -16,8 +16,9 @@ import exprs.If;
 import exprs.IntConst;
 import exprs.Lambda;
 import exprs.Let;
-import exprs.New;
-import exprs.Set;
+import exprs.NewRef;
+import exprs.NewRegion;
+import exprs.RefSet;
 import exprs.Var;
 import types.Type;
 import types.Types;
@@ -28,7 +29,7 @@ public class Parser {
 	private int i;
 
 	private static List<String> KEYWORDS = Arrays.asList(
-		"LAMBDA", "LET", "GET", "SET", "NEW", "IF", "BEGIN");
+		"LAMBDA", "LET", "GET", "SET", "REF", "NEW-REGION", "IF", "BEGIN");
 	private static List<String> OPERATORS = new ArrayList<>();
 	private static List<String> BOOL_OPERS = Arrays.asList(
 		"and", "or", "not", "xor");
@@ -112,26 +113,34 @@ public class Parser {
 		case "IF": return parseIf();
 		case "LAMBDA": return parseLambda();
 		case "LET": return parseLet();
-		case "NEW": return parseNew();
+		case "REF": return parseNewRef();
 		case "SET": return parseSet();
+		case "NEW-REGION": return parseNewRegion();
 		default: throw new ParseException(tokens.get(i-1) + " is not a keyword.");
 		}
 	}
 
-	private Set parseSet() throws ParseException {
+	private Expr parseNewRegion() throws ParseException {
+		if (!gobble("NEW-REGION"))
+			throw new ParseException("Expected NEW-REGION when parsing a new region allocation.");
+		return new NewRegion();
+	}
+
+	private RefSet parseSet() throws ParseException {
 		if (!gobble("SET"))
 			throw new ParseException("Expected SET when parsing a set expression.");
 		Expr ref = parseExpr();
 		Expr newValue = parseExpr();
-		return new Set(ref, newValue);
+		return new RefSet(ref, newValue);
 	}
 
-	private New parseNew() throws ParseException {
-		if (!gobble("NEW"))
-			throw new ParseException("Expected NEW when parsing a new expression.");
+	private NewRef parseNewRef() throws ParseException {
+		if (!gobble("REF"))
+			throw new ParseException("Expected REF when parsing a new expression.");
+		Expr region = parseExpr();
 		Type type = parseType();
 		Expr initValue = parseExpr();
-		return new New(type, initValue);
+		return new NewRef(region, type, initValue);
 	}
 	
 	private Get parseGet() throws ParseException {

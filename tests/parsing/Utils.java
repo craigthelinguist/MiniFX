@@ -55,6 +55,13 @@ public class Utils {
 		assertTrue(Types.equivalent(expected, actual));
 	}
 	
+	public static void ShouldntType(Expr ast) {
+		try {
+			ast.typeCheck(new TypeContext());
+			fail("Shouldn't have typed, but it did.");
+		} catch (RuntimeException re) {}
+	}
+	
 	public static void ShouldReduceTo(Expr ast, Expr result) {
 		Expr astReduced = ast.reduce(new Runtime());
 		assertEquals(astReduced, result);

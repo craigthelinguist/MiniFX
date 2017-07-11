@@ -1,10 +1,13 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
+import fx.Effect;
 import types.Type;
 
 public class Begin implements Expr {
@@ -41,6 +44,15 @@ public class Begin implements Expr {
 		return type;
 	}
 
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		Set<Effect> subfx = new HashSet<>();
+		for (Expr expr : exprs) {
+			subfx.addAll(expr.effectCheck(ctx));
+		}
+		return subfx;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
