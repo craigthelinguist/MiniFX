@@ -30,7 +30,7 @@ public class ScopingTests {
 
 	@Test
 	public void testAccidentalCapture() {
-		Utils.TestProg("((LAMBDA ((x Int))"
+		Utils.TestProg("((LAMBDA PURE ((x Int))"
 				     + "              (LET ((x 5)) x))"
 				     + "      10)",
 				Types.IntType(),

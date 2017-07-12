@@ -15,11 +15,12 @@ import types.Types;
 public class Lambda implements Expr {
 
 	private String[] argNames;
+	private Effect effect;
 	private Type[] argTypes;
 	private Expr lambdaBody;
 	private Type outputType;
 	
-	public Lambda(List<Var> argNames2, List<Type> argTypes, Expr body) {
+	public Lambda(Effect effect, List<Var> argNames2, List<Type> argTypes, Expr body) {
 		if (argNames2.size() != argTypes.size()) 
 			throw new RuntimeException("Need a type for every argument.");
 		this.argNames = new String[argNames2.size()];
@@ -65,6 +66,7 @@ public class Lambda implements Expr {
 	public Type typeCheck(TypeContext ctx) {
 		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes));
 		this.outputType = bodyType;
+		// TODO: compare the effects of the body against the declaration
 		return new Arrow(argTypes, bodyType);
 	}
 	

@@ -1,11 +1,21 @@
 package fx;
 
-public class EffectVar implements Effect {
+import java.util.HashSet;
+import java.util.Set;
 
-	private String varName;
+public class EffectVar extends Effect {
+
+	private String name;
 	
-	public EffectVar(String name) {
-		this.varName = name;
+	public EffectVar(String varName) {
+		this.name = varName;
 	}
 	
+	@Override
+	public Set<Effect> toSet() {
+		Set<Effect> fx = new HashSet<>();
+		fx.add(this);
+		return fx;
+	}
+
 }

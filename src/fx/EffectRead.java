@@ -1,13 +1,23 @@
 package fx;
 
-import exprs.RegionConst;
+import java.util.HashSet;
+import java.util.Set;
 
-public class EffectRead implements Effect {
+import exprs.Expr;
 
-	private RegionConst readFrom;
+public class EffectRead extends Effect {
+
+	private Expr readFrom;
 	
-	public EffectRead(RegionConst r) {
-		this.readFrom = r;
+	public EffectRead(Expr region) {
+		this.readFrom = region;
+	}
+
+	@Override
+	public Set<Effect> toSet() {
+		Set<Effect> fx = new HashSet<>();
+		fx.add(this);
+		return fx;
 	}
 	
 }

@@ -20,6 +20,13 @@ import exprs.NewRef;
 import exprs.NewRegion;
 import exprs.RefSet;
 import exprs.Var;
+import fx.Effect;
+import fx.EffectAlloc;
+import fx.EffectRead;
+import fx.EffectUnion;
+import fx.EffectVar;
+import fx.EffectWrite;
+import fx.Effects;
 import types.Type;
 import types.Types;
 
@@ -28,13 +35,15 @@ public class Parser {
 	private List<String> tokens;
 	private int i;
 
-	private static List<String> KEYWORDS = Arrays.asList(
-		"LAMBDA", "LET", "GET", "SET", "REF", "NEW-REGION", "IF", "BEGIN");
+	private static List<String> KEYWORDS = Arrays.asList
+		("LAMBDA", "LET", "GET", "SET", "REF", "NEW-REGION", "IF", "BEGIN");
+	private static List<String> EFFECT_KEYWORDS = Arrays.asList
+		("PURE", "READ", "WRITE", "ALLOC", "MAXEFF");
 	private static List<String> OPERATORS = new ArrayList<>();
-	private static List<String> BOOL_OPERS = Arrays.asList(
-		"and", "or", "not", "xor");
-	private static List<String> ARITH_OPERS = Arrays.asList(
-		"*", "+", "-", "/");
+	private static List<String> BOOL_OPERS = Arrays.asList
+		("and", "or", "not", "xor");
+	private static List<String> ARITH_OPERS = Arrays.asList
+		("*", "+", "-", "/");
 	
 	static {
 		OPERATORS.addAll(BOOL_OPERS);
@@ -191,6 +200,7 @@ public class Parser {
 			throw new ParseException("Expected LAMBDA at begininng of lambda expression.");
 		List<Var> argNames = new ArrayList<>();
 		List<Type> argTypes = new ArrayList<>();
+		Effect effect = parseEffect();
 		if (!gobble(LEFT_PAREN))
 			throw new ParseException("Expected ( to start function arguments of lambda.");
 		while (!gobble(RIGHT_PAREN)) {
@@ -202,7 +212,7 @@ public class Parser {
 				throw new ParseException(") should end a binding.");
 		}
 		Expr lambdaBody = parseExpr();
-		return new Lambda(argNames, argTypes, lambdaBody);
+		return new Lambda(effect, argNames, argTypes, lambdaBody);
 	}
 
 	private Expr parseIf() throws ParseException {
@@ -309,9 +319,16 @@ public class Parser {
 	}
 	
 	private boolean isKeyword(String token) {
-		for (int i = 0; i < KEYWORDS.size(); i++) {
-			String kw = KEYWORDS.get(i);
-			if (KEYWORDS.get(i).equals(token))
+		for (String kw : KEYWORDS) {
+			if (token.equals(kw))
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean isEffectKeyword(String token) {
+		for (String kw : EFFECT_KEYWORDS) {
+			if (token.equals(kw))
 				return true;
 		}
 		return false;
@@ -319,6 +336,76 @@ public class Parser {
 	
 	private boolean validIdentifierChar(char c) {
 		return Character.isLetter(c) || Character.isDigit(c) || c == '-' || c == '_';
+	}
+	
+	private Effect parseEffect() throws ParseException {
+		if (gobble(LEFT_PAREN)) {
+			String kw = tokens.get(i);
+			Effect effect;
+			switch(kw) {
+				case "WRITE": effect = parseWriteEffect(); break;
+				case "READ": effect = parseReadEffect(); break;
+				case "ALLOC": effect = parseAllocEffect(); break;
+				case "MAXEFF": effect = parseUnionEffect(); break;	
+				default: throw new ParseException("Unknown keyword found while parsing effect: " + kw);
+			}
+			if (!gobble(RIGHT_PAREN))
+				throw new ParseException("Missing right bracket while parsing effect.");
+			return effect;
+		}
+		else if (tokens.get(i).equals("PURE")) {
+			return parsePureEffect();
+		}
+		else if (isIdentifier(tokens.get(i))) {
+			return parseEffectVar();
+		}
+		else {
+			throw new ParseException("Failed parsing effect on token " + tokens.get(i));
+		}
+	}
+	
+	private Effect parseUnionEffect() throws ParseException {
+		if (!gobble("MAXEFF"))
+			throw new ParseException("Expected MAXEFF while parsing a union of effects.");
+		List<Effect> effects = new ArrayList<>();
+		while (!tokens.get(i).equals(RIGHT_PAREN)) {
+			effects.add(parseEffect());
+		}
+		gobble(RIGHT_PAREN);
+		return new EffectUnion(effects);
+	}
+
+	private Effect parseEffectVar() throws ParseException {
+		if (!isIdentifier(tokens.get(i)))
+			throw new ParseException("Failed parsing effect variable: " + tokens.get(i) + " is not a valid identifier.");
+		return new EffectVar(tokens.get(i++));
+	}
+	
+	private Effect parseWriteEffect() throws ParseException {
+		if (!gobble("WRITE"))
+			throw new ParseException("Expected WRITE while parsing a write effect.");
+		Expr region = parseExpr();
+		return new EffectWrite(region);
+	}
+	
+	private Effect parseReadEffect() throws ParseException {
+		if (!gobble("READ"))
+			throw new ParseException("Expected READ while parsing a read effect.");
+		Expr region = parseExpr();
+		return new EffectRead(region);
+	}
+	
+	private Effect parseAllocEffect() throws ParseException {
+		if (!gobble("ALLOC"))
+			throw new ParseException("Expected ALLOC while parsing an allocation effect.");
+		Expr region = parseExpr();
+		return new EffectAlloc(region);
+	}
+	
+	private Effect parsePureEffect() throws ParseException {
+		if (!gobble("PURE"))
+			throw new ParseException("Expected PURE while parsing the pure effect.");
+		return Effects.PureEffect();
 	}
 	
 }

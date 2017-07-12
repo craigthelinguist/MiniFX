@@ -18,6 +18,7 @@ import exprs.BoolOper;
 import exprs.Expr;
 import exprs.Lambda;
 import exprs.Var;
+import fx.Effects;
 import types.Type;
 import types.Types;
 
@@ -96,6 +97,7 @@ public class Utils {
 	
 	public static Lambda AddTwoIntsFunction() {
 		return new Lambda(
+				Effects.PureEffect(),
 				Arrays.asList(
 						new Var("x"),
 						new Var("y")),
@@ -109,6 +111,7 @@ public class Utils {
 	
 	public static Lambda NandFunction() {
 		return new Lambda(
+				Effects.PureEffect(),
 				Arrays.asList(
 						new Var("x"),
 						new Var("y")),

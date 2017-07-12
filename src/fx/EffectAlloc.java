@@ -1,13 +1,24 @@
 package fx;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import exprs.Expr;
 import exprs.RegionConst;
 
-public class EffectAlloc implements Effect {
+public class EffectAlloc extends Effect {
 
-	private RegionConst allocatedTo;
+	private Expr allocatedTo;
 	
-	public EffectAlloc(RegionConst r) {
-		this.allocatedTo = r;
+	public EffectAlloc(Expr region) {
+		this.allocatedTo = region;
+	}
+	
+	@Override
+	public Set<Effect> toSet() {
+		Set<Effect> fx = new HashSet<Effect>();
+		fx.add(this);
+		return fx;
 	}
 	
 }
