@@ -97,13 +97,13 @@ public class Utils {
 	
 	public static Lambda AddTwoIntsFunction() {
 		return new Lambda(
-				Effects.PureEffect(),
 				Arrays.asList(
 						new Var("x"),
 						new Var("y")),
 				Arrays.asList(
 						Types.IntType(),
 						Types.IntType()),
+				Effects.PureEffect(),
 				ArithOper.NewAdd(Arrays.asList(
 						new Var("x"),
 						new Var("y"))));	
@@ -111,13 +111,13 @@ public class Utils {
 	
 	public static Lambda NandFunction() {
 		return new Lambda(
-				Effects.PureEffect(),
 				Arrays.asList(
 						new Var("x"),
 						new Var("y")),
 				Arrays.asList(
 						Types.BoolType(),
 						Types.BoolType()),
+				Effects.PureEffect(),
 				BoolOper.NewNot(Arrays.asList(
 						BoolOper.NewAnd(Arrays.asList(
 								new Var("x"),

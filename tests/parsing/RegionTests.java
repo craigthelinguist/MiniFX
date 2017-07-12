@@ -7,7 +7,7 @@ import org.junit.Test;
 import exprs.Expr;
 import types.Types;
 
-public class AllocationTests {
+public class RegionTests {
 
 	@Test
 	public void newRegion() {

@@ -20,7 +20,7 @@ public class Lambda implements Expr {
 	private Expr lambdaBody;
 	private Type outputType;
 	
-	public Lambda(Effect effect, List<Var> argNames2, List<Type> argTypes, Expr body) {
+	public Lambda(List<Var> argNames2, List<Type> argTypes, Effect effect, Expr body) {
 		if (argNames2.size() != argTypes.size()) 
 			throw new RuntimeException("Need a type for every argument.");
 		this.argNames = new String[argNames2.size()];

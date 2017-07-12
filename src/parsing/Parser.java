@@ -200,7 +200,6 @@ public class Parser {
 			throw new ParseException("Expected LAMBDA at begininng of lambda expression.");
 		List<Var> argNames = new ArrayList<>();
 		List<Type> argTypes = new ArrayList<>();
-		Effect effect = parseEffect();
 		if (!gobble(LEFT_PAREN))
 			throw new ParseException("Expected ( to start function arguments of lambda.");
 		while (!gobble(RIGHT_PAREN)) {
@@ -211,8 +210,9 @@ public class Parser {
 			if (!gobble(RIGHT_PAREN))
 				throw new ParseException(") should end a binding.");
 		}
+		Effect effect = parseEffect();
 		Expr lambdaBody = parseExpr();
-		return new Lambda(effect, argNames, argTypes, lambdaBody);
+		return new Lambda(argNames, argTypes, effect, lambdaBody);
 	}
 
 	private Expr parseIf() throws ParseException {

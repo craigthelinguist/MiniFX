@@ -114,14 +114,14 @@ public class BasicParsingTests {
 	
 	@Test
 	public void lambdaOneArg() {
-		Utils.TestProg("(LAMBDA PURE ((x Int)) x)",
+		Utils.TestProg("(LAMBDA ((x Int)) PURE x)",
 				new Arrow(Types.IntType(), Types.IntType()),
 				Utils.IdIntFunction());
 	}
 	
 	@Test
 	public void lambdaTwoArgs() {
-		Utils.TestProg("(LAMBDA PURE ((x Int) (y Int)) (+ x y))",
+		Utils.TestProg("(LAMBDA ((x Int) (y Int)) PURE (+ x y))",
 				new Arrow(
 					Arrays.asList(
 							Types.IntType(),
@@ -132,7 +132,7 @@ public class BasicParsingTests {
 	
 	@Test
 	public void lambdaBools() {
-		Utils.TestProg("(LAMBDA PURE ((x Bool) (y Bool)) (not (and x y)))",
+		Utils.TestProg("(LAMBDA ((x Bool) (y Bool)) PURE (not (and x y)))",
 				new Arrow(Arrays.asList(
 					Types.BoolType(),
 					Types.BoolType()),
@@ -142,21 +142,21 @@ public class BasicParsingTests {
 	
 	@Test
 	public void applyIdentity() {
-		Utils.TestProg("((LAMBDA PURE ((x Int)) x) 5)",
+		Utils.TestProg("((LAMBDA ((x Int)) PURE x) 5)",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void applyNand() {
-		Utils.TestProg("((LAMBDA PURE ((x Bool) (y Bool)) (not (and x y))) true true)",
+		Utils.TestProg("((LAMBDA ((x Bool) (y Bool)) PURE (not (and x y))) true true)",
 				Types.BoolType(),
 				Exprs.False());
 	}
 	
 	@Test
 	public void applyAdd() {
-		Utils.TestProg("((LAMBDA PURE ((x Int) (y Int)) (+ x y)) 5 10)",
+		Utils.TestProg("((LAMBDA ((x Int) (y Int)) PURE (+ x y)) 5 10)",
 				Types.IntType(),
 				new IntConst(15));
 	}
@@ -177,14 +177,14 @@ public class BasicParsingTests {
 	
 	@Test
 	public void lambdaNoArgs() {
-		Utils.TestProg("((LAMBDA PURE () 3) nil)",
+		Utils.TestProg("((LAMBDA () PURE 3) nil)",
 				Types.IntType(),
 				new IntConst(3));
 	}
 	
 	@Test
 	public void lambdaNoArgs2() {
-		Utils.TestProg("(LET ((f (LAMBDA PURE () 5))) (f nil))",
+		Utils.TestProg("(LET ((f (LAMBDA () PURE 5))) (f nil))",
 				Types.IntType(),
 				new IntConst(5));
 	}
