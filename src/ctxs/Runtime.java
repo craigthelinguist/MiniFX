@@ -18,6 +18,7 @@ public class Runtime {
 	private Map<RegionConst, List<Location>> regions;
 	
 	private static int LocationCounter = 0;
+	private static int RegionCounter = 0;
 	
 	public Runtime() {
 		this.store = new HashMap<>();
@@ -28,6 +29,7 @@ public class Runtime {
 	private Runtime(Runtime other) {
 		this.store = other.store;
 		this.varMapping = new HashMap<>();
+		this.regions = new HashMap<>();
 		for (String key : other.varMapping.keySet()) {
 			this.varMapping.put(key, other.varMapping.get(key));
 		}
@@ -42,7 +44,19 @@ public class Runtime {
 	}
 	
 	public Runtime extend(String varName, Expr value) {
-		return new Runtime(this);
+		Runtime rtm2 = new Runtime(this);
+		for (String name : varMapping.keySet()) {
+			rtm2.varMapping.put(name, varMapping.get(name));
+		}
+		for (RegionConst r : regions.keySet()) {
+			List<Location> locations = new ArrayList<>();
+			for (Location l : regions.get(r)) {
+				locations.add(l);
+			}
+			rtm2.regions.put(r, locations);			
+		}
+		rtm2.varMapping.put(varName, value);
+		return rtm2;
 	}
 
 	public Runtime extend(String[] varNames, Expr[] bindingsReduced) {
@@ -52,6 +66,13 @@ public class Runtime {
 		rtm2.store = this.store;
 		for (String varName : varMapping.keySet()) {
 			rtm2.varMapping.put(varName, varMapping.get(varName));
+		}
+		for (RegionConst r : regions.keySet()) {
+			List<Location> locations = new ArrayList<>();
+			for (Location l : regions.get(r)) {
+				locations.add(l);
+			}
+			rtm2.regions.put(r, locations);			
 		}
 		for (int i = 0; i < varNames.length; i++) {
 			rtm2.varMapping.put(varNames[i], bindingsReduced[i]);
@@ -79,7 +100,7 @@ public class Runtime {
 	}
 
 	public RegionConst makeRegion() {
-		RegionConst newRegion = RegionConst.NewRegion();
+		RegionConst newRegion = new RegionConst(Runtime.RegionCounter++);
 		regions.put(newRegion, new ArrayList<>());
 		return newRegion;
 	}

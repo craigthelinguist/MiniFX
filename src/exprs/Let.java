@@ -39,9 +39,9 @@ public class Let implements Expr {
 		Expr[] bindingsReduced = new Expr[toBinds.length];
 		for (int i = 0; i < toBinds.length; i++) {
 			bindingsReduced[i] = toBinds[i].reduce(rtm);
+			rtm = rtm.extend(varNames[i], bindingsReduced[i]);
 		}
-		Runtime rtm2 = rtm.extend(varNames, bindingsReduced);
-		return body.reduce(rtm2);
+		return body.reduce(rtm);
 	}
 
 	@Override
@@ -49,8 +49,9 @@ public class Let implements Expr {
 		Type[] types = new Type[toBinds.length];
 		for (int i = 0; i < toBinds.length; i++) {
 			types[i] = toBinds[i].typeCheck(ctx);
+			ctx = ctx.extend(varNames[i], types[i]);
 		}
-		return body.typeCheck(ctx.extend(varNames, types));
+		return body.typeCheck(ctx);
 	}
 
 	@Override

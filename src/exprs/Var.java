@@ -26,7 +26,7 @@ public class Var implements Expr {
 	@Override
 	public Type typeCheck(TypeContext ctx) {
 		if (ctx.hasBinding(name)) return ctx.lookupType(name);
-		else throw new RuntimeException("Typechecking variable that isn't defined.");
+		else throw new RuntimeException("Typechecking variable " + name + " that isn't defined.");
 	}
 
 	public String getName() {

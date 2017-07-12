@@ -29,7 +29,7 @@ public class BasicParsingTests {
 	
 	@Test
 	public void nilConst() {
-		Utils.TestProg("nil", Types.UnitType(), Exprs.Nil());
+		Utils.TestProg("NIL", Types.UnitType(), Exprs.Nil());
 	}
 	
 	@Test
@@ -177,42 +177,42 @@ public class BasicParsingTests {
 	
 	@Test
 	public void lambdaNoArgs() {
-		Utils.TestProg("((LAMBDA () PURE 3) nil)",
+		Utils.TestProg("((LAMBDA () PURE 3) NIL)",
 				Types.IntType(),
 				new IntConst(3));
 	}
 	
 	@Test
 	public void lambdaNoArgs2() {
-		Utils.TestProg("(LET ((f (LAMBDA () PURE 5))) (f nil))",
+		Utils.TestProg("(LET ((f (LAMBDA () PURE 5))) (f NIL))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void newRef() {
-		Utils.TestProg("(REF (NEW-REGION) Int 5)",
+		Utils.TestProg("(REF NEW-REGION Int 5)",
 				new Ref(Types.IntType()),
 				new Location(0));
 	}
 	
 	@Test
 	public void readRef() {
-		Utils.TestProg("(GET (REF (NEW-REGION) Int 5))",
+		Utils.TestProg("(GET (REF NEW-REGION Int 5))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void letWithRef() {
-		Utils.TestProg("(LET ((loc (REF (NEW-REGION) Int 5))) (GET loc))",
+		Utils.TestProg("(LET ((loc (REF NEW-REGION Int 5))) (GET loc))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void setRef() {
-		Utils.TestProg("(LET ((loc (REF (NEW-REGION) Int 5)))"
+		Utils.TestProg("(LET ((loc (REF NEW-REGION Int 5)))"
 			   + "    (LET ((x (SET loc 10)))"
 			   + "         (GET loc))) ",
 			   Types.IntType(),
@@ -221,7 +221,7 @@ public class BasicParsingTests {
 	
 	@Test
 	public void beginBlock() {
-		Utils.TestProg("(LET ((r (REF (NEW-REGION) Int 5)))"
+		Utils.TestProg("(LET ((r (REF NEW-REGION Int 5)))"
 			   + "    (BEGIN"
 			   + "        (SET r 10)"
 			   + "        (SET r 15)"
@@ -230,4 +230,26 @@ public class BasicParsingTests {
 			   new IntConst(15));
 	}
 	
+	@Test
+	public void cumulativeLet() {
+		Utils.TestProg("(LET"
+					 + "     ((x 5)"
+					 + "      (y 10)"
+					 + "      (z (+ x y)))"
+					 + "     z)",
+					 Types.IntType(),
+					 new IntConst(15));
+	}
+	
+	@Test
+	public void letWithCompoundBody() {
+		Utils.TestProg("(LET ((x 5) (y 5)) (+ x y))", Types.IntType(), new IntConst(10));
+	}
+	
+	@Test
+	public void applicationInLetBinding() {
+		Utils.TestProg("(LET ((f (LAMBDA () PURE 1)) (x (f NIL))) x)",
+				Types.IntType(),
+				new IntConst(1));
+	}
 }

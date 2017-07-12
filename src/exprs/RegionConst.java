@@ -11,16 +11,10 @@ import types.Types;
 
 public class RegionConst implements Expr {
 
-	private static int RegionCounter = 0;
 	private int id;
 	
-	private RegionConst(int id) {
+	public RegionConst(int id) {
 		this.id = id;
-	}
-	
-	public static RegionConst NewRegion() {
-		RegionConst r = new RegionConst(RegionCounter++);
-		return r;
 	}
 	
 	@Override
@@ -31,6 +25,28 @@ public class RegionConst implements Expr {
 	@Override
 	public Type typeCheck(TypeContext ctx) {
 		return Types.RegionType();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RegionConst other = (RegionConst) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 
 	@Override

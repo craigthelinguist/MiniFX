@@ -36,7 +36,9 @@ public class Parser {
 	private int i;
 
 	private static List<String> KEYWORDS = Arrays.asList
-		("LAMBDA", "LET", "GET", "SET", "REF", "NEW-REGION", "IF", "BEGIN");
+		("LAMBDA", "LET", "GET", "SET", "REF", "IF", "BEGIN");
+	private static List<String> SIMPLE_KEYWORDS = Arrays.asList
+		("NEW-REGION", "NIL");
 	private static List<String> EFFECT_KEYWORDS = Arrays.asList
 		("PURE", "READ", "WRITE", "ALLOC", "MAXEFF");
 	private static List<String> OPERATORS = new ArrayList<>();
@@ -90,7 +92,7 @@ public class Parser {
 			}
 			else { // must be an application
 				List<Expr> exprs = new ArrayList<>();
-				while (!match(RIGHT_PAREN)) {
+				while (!gobble(RIGHT_PAREN)) {
 					exprs.add(parseExpr());
 				}
 				if (exprs.size() < 1)
@@ -98,14 +100,14 @@ public class Parser {
 				return new Application(exprs);
 			}
 		}
+		else if (isUnaryKeyword(tokens.get(i))) {
+			return ParseUnaryKeyword();
+		}
 		else if (isNumber(tokens.get(i))) {
 			return new IntConst(Integer.parseInt(tokens.get(i++)));
 		}
 		else if (isBool(tokens.get(i))) {
 			return tokens.get(i++).equals("true") ? new BoolConst(true) : new BoolConst(false);
-		}
-		else if (gobble("nil")) {
-			return Exprs.Nil();
 		}
 		else if (isIdentifier(tokens.get(i))) {
 			return new Var(tokens.get(i++));
@@ -115,6 +117,26 @@ public class Parser {
 		}
 	}
 	
+	private Expr ParseUnaryKeyword() throws ParseException {
+		switch(tokens.get(i)) {
+		case "NEW-REGION": return parseNewRegion();
+		case "NIL": return parseNil();
+		default: throw new ParseException(tokens.get(i) + " is not a unary keyword.");
+		}
+	}
+
+	private Expr parseNewRegion() throws ParseException {
+		if (!gobble("NEW-REGION"))
+			throw new ParseException("Expected NEW-REGION when parsing a new region allocation.");
+		return new NewRegion();
+	}
+
+	private Expr parseNil() throws ParseException {
+		if (!gobble("NIL"))
+			throw new ParseException("Expected NIL when parsing");
+		return Exprs.Nil();
+	}
+
 	private Expr parseKeyword() throws ParseException {
 		switch(tokens.get(i)) {
 		case "BEGIN": return parseBegin();
@@ -124,15 +146,8 @@ public class Parser {
 		case "LET": return parseLet();
 		case "REF": return parseNewRef();
 		case "SET": return parseSet();
-		case "NEW-REGION": return parseNewRegion();
-		default: throw new ParseException(tokens.get(i-1) + " is not a keyword.");
+		default: throw new ParseException(tokens.get(i) + " is not a keyword.");
 		}
-	}
-
-	private Expr parseNewRegion() throws ParseException {
-		if (!gobble("NEW-REGION"))
-			throw new ParseException("Expected NEW-REGION when parsing a new region allocation.");
-		return new NewRegion();
 	}
 
 	private RefSet parseSet() throws ParseException {
@@ -165,6 +180,7 @@ public class Parser {
 		if (t.equals("Bool")) type = Types.BoolType();
 		if (t.equals("Unit")) type = Types.UnitType();
 		if (t.equals("Int")) type = Types.IntType();
+		if (t.equals("Region")) type = Types.RegionType();
 		if (type == null) throw new ParseException(t + " cannot be parsed as a type.");
 		i++;
 		return type;
@@ -320,6 +336,14 @@ public class Parser {
 	
 	private boolean isKeyword(String token) {
 		for (String kw : KEYWORDS) {
+			if (token.equals(kw))
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean isUnaryKeyword(String token) {
+		for (String kw : SIMPLE_KEYWORDS) {
 			if (token.equals(kw))
 				return true;
 		}
