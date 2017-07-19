@@ -28,7 +28,12 @@ public class Var implements Expr {
 		if (ctx.hasBinding(name)) return ctx.lookupType(name);
 		else throw new RuntimeException("Typechecking variable " + name + " that isn't defined.");
 	}
-
+	
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		return new HashSet<>();
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -63,9 +68,4 @@ public class Var implements Expr {
 		return name;
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
-	}
-	
 }

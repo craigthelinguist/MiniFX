@@ -8,7 +8,9 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Type;
+import types.TypeCheckException;
 
 public class Begin implements Expr {
 
@@ -36,7 +38,7 @@ public class Begin implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		Type type = null;
 		for (Expr expr : exprs) {
 			type = expr.typeCheck(ctx);
@@ -45,7 +47,7 @@ public class Begin implements Expr {
 	}
 
 	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		Set<Effect> subfx = new HashSet<>();
 		for (Expr expr : exprs) {
 			subfx.addAll(expr.effectCheck(ctx));

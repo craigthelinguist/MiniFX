@@ -18,8 +18,10 @@ import exprs.BoolOper;
 import exprs.Expr;
 import exprs.Lambda;
 import exprs.Var;
+import fx.EffectCheckException;
 import fx.Effects;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class Utils {
@@ -51,16 +53,44 @@ public class Utils {
 	}
 	
 	public static void ShouldType(Expr ast, Type expected) {
-		Type actual = ast.typeCheck(new TypeContext());
-		System.out.println();
-		assertTrue(Types.equivalent(expected, actual));
+		try {
+			Type actual = ast.typeCheck(new TypeContext());
+			assertTrue(Types.equivalent(expected, actual));
+		}
+		catch (TypeCheckException | EffectCheckException e) {
+			fail("Should have typed and effect checked, but it didn't.");
+		}
 	}
 	
-	public static void ShouldntType(Expr ast) {
+	public static void ShouldntType(String prog) {
 		try {
+			Expr ast = Compile(prog);
 			ast.typeCheck(new TypeContext());
-			fail("Shouldn't have typed, but it did.");
-		} catch (RuntimeException re) {}
+		}
+		catch (ParseException | LexException e) {
+			fail("Should have parsed and lexed, but it didn't.");
+		}
+		catch (EffectCheckException efce) {
+			fail("Should have effect-checked, but it didn't.");
+		}
+		catch (TypeCheckException tce) {
+		}
+	}
+	
+	public static void ShouldntEffectCheck(String prog) {
+		try {
+			Expr ast = Compile(prog);
+			ast.typeCheck(new TypeContext());
+		}
+		catch (ParseException | LexException e) {
+			fail("Should have parsed and lexed, but it didn't.");
+		}
+		catch (EffectCheckException efce) {
+			
+		}
+		catch (TypeCheckException tce) {
+			fail("Should have typed, but it didn't.");
+		}
 	}
 	
 	public static void ShouldReduceTo(Expr ast, Expr result) {

@@ -3,13 +3,16 @@ package exprs;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import exprs.Expr;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Arrow;
 import types.Type;
+import types.TypeCheckException;
 import types.Unit;
 
 public class Application implements Expr {
@@ -37,27 +40,27 @@ public class Application implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		
 		// First thing in an application must be a function.
 		Type type = firstArg.typeCheck(ctx);
 		if (!(type instanceof Arrow))
-			throw new RuntimeException("First thing in an application must be a function.");
+			throw new TypeCheckException("First thing in an application must be a function.");
 		Arrow funcType = (Arrow) type;
 		
 		// Check you've supplied right number of arguments to null-ary function.
 		if (funcType.numArgs() == 0 && rest.length != 1)
-			throw new RuntimeException("Wrong number of arguments supplied.");
+			throw new TypeCheckException("Wrong number of arguments supplied.");
 		
 		// Check you've supplied right number of arguments to non null-ary function.
 		if (funcType.numArgs() > 0 && funcType.numArgs() != rest.length)
-			throw new RuntimeException("Wrong number of arguments supplied.");
+			throw new TypeCheckException("Wrong number of arguments supplied.");
 		
 		// This is a null-ary function; make sure you're passing nil.
 		if (funcType.numArgs() == 0) {
 			Type input = rest[0].typeCheck(ctx);
 			if (!(input instanceof Unit))
-				throw new RuntimeException("Must pass nil to a null-ary function.");
+				throw new TypeCheckException("Must pass nil to a null-ary function.");
 			return funcType.outputType();
 		}
 		
@@ -66,10 +69,19 @@ public class Application implements Expr {
 		for (int i = 1; i < rest.length; i++) {
 			Type actualType = rest[i-1].typeCheck(ctx);
 			if (!actualType.subtypeOf(formalTypes[i-1]))
-				throw new RuntimeException("Actual input argument must be subtype of formal argument.");
+				throw new TypeCheckException("Actual input argument must be subtype of formal argument.");
 		}
 		return funcType.outputType();
+	}
+	
 
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		Set<Effect> fx = firstArg.effectCheck(ctx);
+		for (Expr arg : rest) {
+			fx.addAll(arg.effectCheck(ctx));
+		}
+		return fx;
 	}
 
 	@Override
@@ -101,12 +113,6 @@ public class Application implements Expr {
 			children[i] = rest[i].toString();
 		}
 		return "(" + firstArg + " " + String.join(" ", children) + ")";
-	}
-
-	@Override
-	public HashSet<Effect> effectCheck(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 }

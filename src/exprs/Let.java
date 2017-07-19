@@ -8,7 +8,9 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Type;
+import types.TypeCheckException;
 
 public class Let implements Expr {
 
@@ -45,7 +47,7 @@ public class Let implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		Type[] types = new Type[toBinds.length];
 		for (int i = 0; i < toBinds.length; i++) {
 			types[i] = toBinds[i].typeCheck(ctx);
@@ -53,7 +55,20 @@ public class Let implements Expr {
 		}
 		return body.typeCheck(ctx);
 	}
-
+	
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		Set<Effect> fx = new HashSet<>();
+		for (Expr expr : toBinds) {
+			fx.addAll(expr.effectCheck(ctx));
+		}
+		Type[] types = new Type[toBinds.length];
+		for (int i = 0; i < toBinds.length; i++) {
+			types[i] = toBinds[i].typeCheck(ctx);
+		}
+		return body.effectCheck(ctx.extend(varNames, types));
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -94,17 +109,5 @@ public class Let implements Expr {
 		return "(LET " + String.join(" ", bindings) + " " + body + ")";
 	}
 	
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		Set<Effect> fx = new HashSet<>();
-		for (Expr expr : toBinds) {
-			fx.addAll(expr.effectCheck(ctx));
-		}
-		Type[] types = new Type[toBinds.length];
-		for (int i = 0; i < toBinds.length; i++) {
-			types[i] = toBinds[i].typeCheck(ctx);
-		}
-		return body.effectCheck(ctx.extend(varNames, types));
-	}
-	
+
 }

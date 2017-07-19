@@ -5,8 +5,10 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Ref;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class NewRef implements Expr {
@@ -28,7 +30,7 @@ public class NewRef implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		Type regionType = region.typeCheck(ctx);
 		if (!Types.equivalent(regionType, Types.RegionType()))
 			throw new RuntimeException("Allocating in something which isn't a region.");
@@ -75,9 +77,9 @@ public class NewRef implements Expr {
 	}
 
 	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		// TODO
-		return null;
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		// TODO need to get the region but that info not stored yet in the receiver
+		throw new UnsupportedOperationException("Effect checking a new reference.");
 	}
 	
 }

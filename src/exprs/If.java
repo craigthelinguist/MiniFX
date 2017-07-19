@@ -5,8 +5,10 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Bool;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class If implements Expr {
@@ -30,7 +32,7 @@ public class If implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		if (!(guard.typeCheck(ctx) instanceof Bool))
 			throw new RuntimeException("Guard of a conditional must be a Boolean.");
 		Type trueType = trueBranch.typeCheck(ctx);
@@ -51,6 +53,14 @@ public class If implements Expr {
 		return result;
 	}
 
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		Set<Effect> fx = guard.effectCheck(ctx);
+		fx.addAll(trueBranch.effectCheck(ctx));
+		fx.addAll(falseBranch.effectCheck(ctx));
+		return fx;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -83,14 +93,6 @@ public class If implements Expr {
 		return "(IF " + guard + " " + trueBranch + " " + falseBranch + ")";
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		Set<Effect> fx = guard.effectCheck(ctx);
-		fx.addAll(trueBranch.effectCheck(ctx));
-		fx.addAll(falseBranch.effectCheck(ctx));
-		return fx;
-	}
-	
 }
 
 

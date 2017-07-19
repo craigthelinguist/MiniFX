@@ -1,14 +1,17 @@
 package exprs;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Int;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class ArithOper implements Expr {
@@ -103,13 +106,23 @@ public class ArithOper implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		for (Expr xpr : args) {
 			Type t = xpr.typeCheck(ctx);
 			if (!(t instanceof Int))
-				throw new RuntimeException("Need to give Ints to arithmetic operators.");
+				throw new TypeCheckException("Need to give Ints to arithmetic operators.");
 		}
 		return Types.IntType();
+	}
+	
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		Set<Effect> fx = new HashSet<>();
+		for (Expr xpr : args) {
+			fx.addAll(xpr.effectCheck(ctx));
+		}
+		return fx;
 	}
 
 	@Override
@@ -147,11 +160,5 @@ public class ArithOper implements Expr {
 		return "(" + String.join(" ", children) + ")";
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }
 

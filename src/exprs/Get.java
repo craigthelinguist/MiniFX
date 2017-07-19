@@ -1,12 +1,14 @@
-package exprs;
+ package exprs;
 
 import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Ref;
 import types.Type;
+import types.TypeCheckException;
 
 public class Get implements Expr {
 
@@ -51,7 +53,7 @@ public class Get implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		Type refToGetType = refToGet.typeCheck(ctx);
 		if (!(refToGetType instanceof Ref))
 			throw new RuntimeException("Can only dereference a reference type.");
@@ -66,8 +68,15 @@ public class Get implements Expr {
 
 	@Override
 	public Set<Effect> effectCheck(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		/*
+		Type refToGetType = refToGet.typeCheck(ctx);
+		if (!(refToGetType instanceof Ref))
+			throw new RuntimeException("Can only dereference a reference type.");
+		Ref reference = (Ref) refToGetType;
+		*/
+		
+		// Need to get the region from the reference here, but that info is not currently stored.
+		throw new UnsupportedOperationException("Effect checking for get not supported.");
 	}
 	
 }

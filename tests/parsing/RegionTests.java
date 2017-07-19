@@ -26,16 +26,7 @@ public class RegionTests {
 	
 	@Test
 	public void badRegion() {
-		try {
-			Expr prog = Utils.Compile("(REF 3 Int 5)");
-			Utils.ShouldntType(prog);
-		}
-		catch (LexException le) {
-			fail("Should have lexed.");
-		}
-		catch (ParseException pe) {
-			fail("Should have parsed.");
-		}
+		Utils.ShouldntType("(REF 3 Int 5");
 	}
 	
 	@Test

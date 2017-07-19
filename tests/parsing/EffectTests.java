@@ -19,4 +19,11 @@ public class EffectTests {
 				new IntConst(0));
 	}
 	
+	@Test
+	public void badAnnotation() {
+		Utils.ShouldntType("((LAMBDA ((r Region))"
+						 + "         PURE"
+						 + "         (REF r Int 0)) NEW-REGION)");
+	}
+	
 }

@@ -6,7 +6,9 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class BoolConst implements Expr {
@@ -27,9 +29,15 @@ public class BoolConst implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		return Types.BoolType();
 	}
+	
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException {
+		return new HashSet<>();
+	}
+	
 
 	public boolean asBool() {
 		return this.value;
@@ -62,9 +70,4 @@ public class BoolConst implements Expr {
 		return value ? "true" : "false";
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
-	}
-	
 }

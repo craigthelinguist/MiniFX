@@ -28,6 +28,11 @@ public class RegionConst implements Expr {
 	}
 
 	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) {
+		return new HashSet<>();
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -47,11 +52,6 @@ public class RegionConst implements Expr {
 		if (id != other.id)
 			return false;
 		return true;
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
 	}
 
 }

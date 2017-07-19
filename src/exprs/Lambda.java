@@ -8,14 +8,16 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Arrow;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class Lambda implements Expr {
 
 	private String[] argNames;
-	private Effect effect;
+	private Effect effectAnnotation;
 	private Type[] argTypes;
 	private Expr lambdaBody;
 	private Type outputType;
@@ -63,11 +65,18 @@ public class Lambda implements Expr {
 	}
 	
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes));
 		this.outputType = bodyType;
-		// TODO: compare the effects of the body against the declaration
+		Set<Effect> bodyFx = lambdaBody.effectCheck(ctx.extend(argNames, argTypes));
+		if (!effectAnnotation.toSet().containsAll(bodyFx))
+			throw new RuntimeException("Failed to effect check.");
 		return new Arrow(argTypes, bodyType);
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException {
+		return new HashSet<>();
 	}
 	
 	public int numArgs() {
@@ -125,11 +134,6 @@ public class Lambda implements Expr {
 		}
 		
 		return "(LAMBDA (" + String.join(" ", types) + ") " + lambdaBody + ")";
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
 	}
 	
 }

@@ -5,8 +5,10 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Ref;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 
 public class RefSet implements Expr {
@@ -31,7 +33,7 @@ public class RefSet implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		Type referenceToSetType = referenceToSet.typeCheck(ctx);
 		if (!(referenceToSetType instanceof Ref))
 			throw new RuntimeException("Must set something of reference type.");
@@ -40,6 +42,12 @@ public class RefSet implements Expr {
 		if (!valType.subtypeOf(refType.componentType()))
 			throw new RuntimeException("Must set a reference with something of its component type.");
 		return Types.UnitType();
+	}
+	
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		// TODO need to get the region of the receiver but that info not stored yet.
+		throw new UnsupportedOperationException("Cant effect check RefSet yet");
 	}
 
 	@Override
@@ -78,10 +86,4 @@ public class RefSet implements Expr {
 		return "(SET " + referenceToSet + " " + exprToSet + ")";
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }

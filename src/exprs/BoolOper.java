@@ -8,7 +8,9 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectCheckException;
 import types.Type;
+import types.TypeCheckException;
 import types.Types;
 import types.Bool;
 
@@ -101,7 +103,7 @@ public class BoolOper implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
 		for (Expr expr : args) {
 			Type t = expr.typeCheck(ctx);
 			if (!(t instanceof Bool))
@@ -111,7 +113,7 @@ public class BoolOper implements Expr {
 	}
 	
 	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		Set<Effect> subfx = new HashSet<>();
 		for (Expr expr : args) {
 			subfx.addAll(expr.effectCheck(ctx));
