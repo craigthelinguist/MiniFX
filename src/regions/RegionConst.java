@@ -1,15 +1,8 @@
-package exprs;
+package regions;
 
-import java.util.HashSet;
-import java.util.Set;
+import types.Region;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import types.Type;
-import types.Types;
-
-public class RegionConst implements Expr {
+public class RegionConst {
 
 	private int id;
 	
@@ -17,19 +10,8 @@ public class RegionConst implements Expr {
 		this.id = id;
 	}
 	
-	@Override
-	public Expr reduce(Runtime rtm) {
-		return this;
-	}
-
-	@Override
-	public Type typeCheck(TypeContext ctx) {
-		return Types.RegionType();
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
+	public int getID() {
+		return this.id;
 	}
 
 	@Override
@@ -53,5 +35,9 @@ public class RegionConst implements Expr {
 			return false;
 		return true;
 	}
-
+	
+	public Region typeOf() {
+		return new Region(this);
+	}
+	
 }

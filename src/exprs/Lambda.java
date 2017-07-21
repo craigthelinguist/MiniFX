@@ -9,6 +9,7 @@ import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
 import fx.EffectCheckException;
+import fx.Effects;
 import types.Arrow;
 import types.Type;
 import types.TypeCheckException;
@@ -27,6 +28,7 @@ public class Lambda implements Expr {
 			throw new RuntimeException("Need a type for every argument.");
 		this.argNames = new String[argNames2.size()];
 		this.argTypes = new Type[argNames2.size()];
+		this.effectAnnotation = effect;
 		for (int i = 0; i < argNames2.size(); i++) {
 			this.argNames[i] = argNames2.get(i).getName();
 			this.argTypes[i] = argTypes.get(i);
@@ -69,9 +71,10 @@ public class Lambda implements Expr {
 		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes));
 		this.outputType = bodyType;
 		Set<Effect> bodyFx = lambdaBody.effectCheck(ctx.extend(argNames, argTypes));
-		if (!effectAnnotation.toSet().containsAll(bodyFx))
-			throw new RuntimeException("Failed to effect check.");
-		return new Arrow(argTypes, bodyType);
+		Set<Effect> annotFx  = effectAnnotation.toSet();
+		if (!annotFx.containsAll(bodyFx))
+			throw new EffectCheckException("Failed to effect check.");
+		return Arrow.Pure(argTypes, bodyType);
 	}
 
 	@Override

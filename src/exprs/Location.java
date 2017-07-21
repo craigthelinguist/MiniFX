@@ -6,10 +6,23 @@ import java.util.Set;
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import regions.RegionConst;
 import types.Type;
 
 public class Location implements Expr {
 
+	private RegionConst region;
+	private int location;
+	
+	public Location(RegionConst r, int l) {
+		this.region = r;
+		this.location = l;
+	}
+	
+	public int getLocation() {
+		return this.location;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -32,16 +45,6 @@ public class Location implements Expr {
 		return true;
 	}
 
-	private int location;
-	
-	public Location(int l) {
-		this.location = l;
-	}
-	
-	public int getLocation() {
-		return this.location;
-	}
-	
 	@Override
 	public Expr reduce(Runtime rtm) {
 		return this;

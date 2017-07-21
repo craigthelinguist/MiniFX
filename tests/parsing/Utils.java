@@ -58,7 +58,9 @@ public class Utils {
 			assertTrue(Types.equivalent(expected, actual));
 		}
 		catch (TypeCheckException | EffectCheckException e) {
-			fail("Should have typed and effect checked, but it didn't.");
+			System.err.println("Should have type and effect checked, but it didn't.");
+			System.err.println(e.toString());
+			fail(e.toString());
 		}
 	}
 	

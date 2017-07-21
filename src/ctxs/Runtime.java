@@ -1,13 +1,14 @@
 package ctxs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import exprs.Expr;
 import exprs.Location;
-import exprs.RegionConst;
+import regions.RegionConst;
 
 public class Runtime {
 
@@ -87,7 +88,10 @@ public class Runtime {
 	}
 	
 	public Location allocate(RegionConst region, Expr init) {
-		Location location = new Location(Runtime.LocationCounter++);
+		Location location = new Location(region, Runtime.LocationCounter++);
+		if (!this.regions.containsKey(region)) {
+			this.regions.put(region, new ArrayList<>());
+		}
 		this.regions.get(region).add(location);
 		this.store.put(location.getLocation(), init);
 		return location;

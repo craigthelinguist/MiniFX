@@ -6,6 +6,7 @@ import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
 import fx.EffectCheckException;
+import regions.RegionConst;
 import types.Ref;
 import types.Type;
 import types.TypeCheckException;
@@ -43,7 +44,7 @@ public class RefSet implements Expr {
 			throw new RuntimeException("Must set a reference with something of its component type.");
 		return Types.UnitType();
 	}
-	
+
 	@Override
 	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
 		// TODO need to get the region of the receiver but that info not stored yet.

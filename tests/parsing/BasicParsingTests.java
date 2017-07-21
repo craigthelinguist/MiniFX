@@ -6,8 +6,10 @@ import org.junit.Test;
 import exprs.Exprs;
 import exprs.IntConst;
 import exprs.Location;
+import regions.RegionConst;
 import types.Arrow;
 import types.Ref;
+import types.Region;
 import types.Types;
 
 public class BasicParsingTests {
@@ -115,14 +117,14 @@ public class BasicParsingTests {
 	@Test
 	public void lambdaOneArg() {
 		Utils.TestProg("(LAMBDA ((x Int)) PURE x)",
-				new Arrow(Types.IntType(), Types.IntType()),
+				Arrow.Pure(Types.IntType(), Types.IntType()),
 				Utils.IdIntFunction());
 	}
 	
 	@Test
 	public void lambdaTwoArgs() {
 		Utils.TestProg("(LAMBDA ((x Int) (y Int)) PURE (+ x y))",
-				new Arrow(
+				Arrow.Pure(
 					Arrays.asList(
 							Types.IntType(),
 							Types.IntType()),
@@ -133,7 +135,7 @@ public class BasicParsingTests {
 	@Test
 	public void lambdaBools() {
 		Utils.TestProg("(LAMBDA ((x Bool) (y Bool)) PURE (not (and x y)))",
-				new Arrow(Arrays.asList(
+				Arrow.Pure(Arrays.asList(
 					Types.BoolType(),
 					Types.BoolType()),
 				Types.BoolType()),
@@ -191,28 +193,28 @@ public class BasicParsingTests {
 	
 	@Test
 	public void newRef() {
-		Utils.TestProg("(REF NEW-REGION Int 5)",
-				new Ref(Types.IntType()),
-				new Location(0));
+		Utils.TestProg("(REF (REGION 1) Int 5)",
+				new Ref(Types.IntType(), new Region(1)),
+				new Location(new RegionConst(1), 0));
 	}
 	
 	@Test
 	public void readRef() {
-		Utils.TestProg("(GET (REF NEW-REGION Int 5))",
+		Utils.TestProg("(GET (REF (REGION 1) Int 5))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void letWithRef() {
-		Utils.TestProg("(LET ((loc (REF NEW-REGION Int 5))) (GET loc))",
+		Utils.TestProg("(LET ((loc (REF (REGION 1) Int 5))) (GET loc))",
 				Types.IntType(),
 				new IntConst(5));
 	}
 	
 	@Test
 	public void setRef() {
-		Utils.TestProg("(LET ((loc (REF NEW-REGION Int 5)))"
+		Utils.TestProg("(LET ((loc (REF (REGION 1) Int 5)))"
 			   + "    (LET ((x (SET loc 10)))"
 			   + "         (GET loc))) ",
 			   Types.IntType(),
@@ -221,7 +223,7 @@ public class BasicParsingTests {
 	
 	@Test
 	public void beginBlock() {
-		Utils.TestProg("(LET ((r (REF NEW-REGION Int 5)))"
+		Utils.TestProg("(LET ((r (REF (REGION 1) Int 5)))"
 			   + "    (BEGIN"
 			   + "        (SET r 10)"
 			   + "        (SET r 15)"

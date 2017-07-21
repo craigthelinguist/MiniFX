@@ -1,22 +1,27 @@
 package exprs;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
+import fx.EffectAlloc;
 import fx.EffectCheckException;
+import regions.RegionConst;
 import types.Ref;
+import types.Region;
 import types.Type;
 import types.TypeCheckException;
 import types.Types;
 
-public class NewRef implements Expr {
+public class RefNew implements Expr {
 
-	private Expr region, initialValue;
+	private RegionConst region;
+	private Expr initialValue;
 	private Type componentType;
 	
-	public NewRef(Expr region, Type type, Expr initValue) {
+	public RefNew(RegionConst region, Type type, Expr initValue) {
 		this.region = region;
 		this.componentType = type;
 		this.initialValue = initValue;
@@ -24,20 +29,23 @@ public class NewRef implements Expr {
 
 	@Override
 	public Expr reduce(Runtime rtm) {
-		RegionConst region = (RegionConst) this.region.reduce(rtm);
 		Expr init = initialValue.reduce(rtm);
 		return rtm.allocate(region, init);
 	}
 
 	@Override
 	public Type typeCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Type regionType = region.typeCheck(ctx);
-		if (!Types.equivalent(regionType, Types.RegionType()))
-			throw new RuntimeException("Allocating in something which isn't a region.");
 		Type valueType = initialValue.typeCheck(ctx);
 		if (!(valueType.subtypeOf(componentType)))
 			throw new RuntimeException("Initialising reference with something of inappropriate type.");
-		return new Ref(componentType);
+		return new Ref(componentType, region.typeOf());
+	}
+
+	@Override
+	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
+		Set<Effect> fx = new HashSet<>();
+		fx.add(new EffectAlloc(region.typeOf()));
+		return fx;
 	}
 
 	@Override
@@ -57,7 +65,7 @@ public class NewRef implements Expr {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NewRef other = (NewRef) obj;
+		RefNew other = (RefNew) obj;
 		if (componentType == null) {
 			if (other.componentType != null)
 				return false;
@@ -74,12 +82,6 @@ public class NewRef implements Expr {
 	@Override
 	public String toString() {
 		return "(NEW " + this.componentType + " " + this.initialValue + ")";
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		// TODO need to get the region but that info not stored yet in the receiver
-		throw new UnsupportedOperationException("Effect checking a new reference.");
 	}
 	
 }

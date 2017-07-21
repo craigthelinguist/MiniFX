@@ -49,13 +49,13 @@ public class Application implements Expr {
 		Arrow funcType = (Arrow) type;
 		
 		// Check you've supplied right number of arguments to null-ary function.
-		if (funcType.numArgs() == 0 && rest.length != 1)
+		if (funcType.numArgs() == 0 && rest.length != 1) {
 			throw new TypeCheckException("Wrong number of arguments supplied.");
+		}
 		
-		// Check you've supplied right number of arguments to non null-ary function.
-		if (funcType.numArgs() > 0 && funcType.numArgs() != rest.length)
+		if (funcType.numArgs() > 0 && funcType.numArgs() != rest.length) {
 			throw new TypeCheckException("Wrong number of arguments supplied.");
-		
+		}
 		// This is a null-ary function; make sure you're passing nil.
 		if (funcType.numArgs() == 0) {
 			Type input = rest[0].typeCheck(ctx);

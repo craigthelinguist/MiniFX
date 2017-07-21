@@ -1,20 +1,22 @@
  package exprs;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ctxs.Runtime;
 import ctxs.TypeContext;
 import fx.Effect;
 import fx.EffectCheckException;
+import fx.EffectRead;
 import types.Ref;
 import types.Type;
 import types.TypeCheckException;
 
-public class Get implements Expr {
+public class RefGet implements Expr {
 
 	private Expr refToGet;
 	
-	public Get(Expr ref) {
+	public RefGet(Expr ref) {
 		this.refToGet = ref;
 	}
 
@@ -43,7 +45,7 @@ public class Get implements Expr {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Get other = (Get) obj;
+		RefGet other = (RefGet) obj;
 		if (refToGet == null) {
 			if (other.refToGet != null)
 				return false;
@@ -67,16 +69,11 @@ public class Get implements Expr {
 	}
 
 	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		/*
-		Type refToGetType = refToGet.typeCheck(ctx);
-		if (!(refToGetType instanceof Ref))
-			throw new RuntimeException("Can only dereference a reference type.");
-		Ref reference = (Ref) refToGetType;
-		*/
-		
-		// Need to get the region from the reference here, but that info is not currently stored.
-		throw new UnsupportedOperationException("Effect checking for get not supported.");
+	public Set<Effect> effectCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
+		Set<Effect> fx = new HashSet<>();
+		Ref refType = (Ref) refToGet.typeCheck(ctx);
+		fx.add(new EffectRead(refType.getRegion()));
+		return fx;
 	}
 	
 }
