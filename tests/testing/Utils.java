@@ -1,4 +1,4 @@
-package parsing;
+package testing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +20,10 @@ import exprs.Lambda;
 import exprs.Var;
 import fx.EffectCheckException;
 import fx.Effects;
+import parsing.LexException;
+import parsing.Lexer;
+import parsing.ParseException;
+import parsing.Parser;
 import types.Type;
 import types.TypeCheckException;
 import types.Types;

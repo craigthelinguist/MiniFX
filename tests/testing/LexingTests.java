@@ -1,4 +1,4 @@
-package parsing;
+package testing;
 import java.util.List;
 
 import org.junit.Test;

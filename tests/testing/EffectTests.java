@@ -1,4 +1,4 @@
-package parsing;
+package testing;
 
 import org.junit.Test;
 
