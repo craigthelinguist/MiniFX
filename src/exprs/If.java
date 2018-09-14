@@ -2,14 +2,15 @@ package exprs;
 
 import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Bool;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.Effect;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Bool;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
+import runtimes.Runtime;
 
 public class If implements Expr {
 
@@ -24,19 +25,19 @@ public class If implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime ctx) {
-		Expr guardReduced = guard.reduce(ctx);
+	public Value reduce(Runtime ctx, DescCtx descCtx) {
+		Expr guardReduced = guard.reduce(ctx, descCtx);
 		if (!(guardReduced instanceof BoolConst))
 			throw new RuntimeException("Guard of a conditional must be a Boolean.");
-		return ((BoolConst)guardReduced).getValue() ? trueBranch.reduce(ctx) : falseBranch.reduce(ctx);
+		return ((BoolConst)guardReduced).getValue() ? trueBranch.reduce(ctx, descCtx) : falseBranch.reduce(ctx, descCtx);
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
-		if (!(guard.typeCheck(ctx) instanceof Bool))
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException {
+		if (!(guard.typeCheck(ctx, descCtx) instanceof Bool))
 			throw new RuntimeException("Guard of a conditional must be a Boolean.");
-		Type trueType = trueBranch.typeCheck(ctx);
-		Type falseType = falseBranch.typeCheck(ctx);
+		Type trueType = trueBranch.typeCheck(ctx, descCtx);
+		Type falseType = falseBranch.typeCheck(ctx, descCtx);
 		Type lub = Types.leastUpperBound(trueType, falseType);
 		if (lub == null)
 			throw new RuntimeException("Two branches of conditional must have common supertype.");
@@ -51,14 +52,6 @@ public class If implements Expr {
 		result = prime * result + ((guard == null) ? 0 : guard.hashCode());
 		result = prime * result + ((trueBranch == null) ? 0 : trueBranch.hashCode());
 		return result;
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Set<Effect> fx = guard.effectCheck(ctx);
-		fx.addAll(trueBranch.effectCheck(ctx));
-		fx.addAll(falseBranch.effectCheck(ctx));
-		return fx;
 	}
 	
 	@Override

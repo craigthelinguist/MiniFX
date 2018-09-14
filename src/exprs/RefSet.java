@@ -1,16 +1,13 @@
 package exprs;
 
-import java.util.Set;
-
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import regions.RegionConst;
-import types.Ref;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Ref;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
+import runtimes.Runtime;
 
 public class RefSet implements Expr {
 
@@ -23,32 +20,26 @@ public class RefSet implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime rtm) {
-		Expr location = referenceToSet.reduce(rtm);
-		if (!(location instanceof Location))
-			throw new RuntimeException("Can only set a location.");
-		Location loc = (Location) location;
-		Expr newValue = exprToSet.reduce(rtm);
-		rtm.memWrite(loc, newValue);
+	public Value reduce(Runtime rtm, DescCtx descCtx) {
+		Value ref = referenceToSet.reduce(rtm, descCtx);
+		Value expr = exprToSet.reduce(rtm, descCtx);
+		if (!(ref instanceof Location)) {
+			throw new RuntimeException("Trying to `set` something which isn't a reference.");
+		}
+		rtm.setRef((Location) ref, expr);
 		return Exprs.Nil();
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Type referenceToSetType = referenceToSet.typeCheck(ctx);
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws EffectCheckException, TypeCheckException {
+		Type referenceToSetType = referenceToSet.typeCheck(ctx, descCtx);
 		if (!(referenceToSetType instanceof Ref))
 			throw new RuntimeException("Must set something of reference type.");
 		Ref refType = (Ref) referenceToSetType;
-		Type valType = exprToSet.typeCheck(ctx);
+		Type valType = exprToSet.typeCheck(ctx, descCtx);
 		if (!valType.subtypeOf(refType.componentType()))
 			throw new RuntimeException("Must set a reference with something of its component type.");
 		return Types.UnitType();
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		// TODO need to get the region of the receiver but that info not stored yet.
-		throw new UnsupportedOperationException("Cant effect check RefSet yet");
 	}
 
 	@Override

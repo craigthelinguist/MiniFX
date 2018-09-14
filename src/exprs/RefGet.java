@@ -3,14 +3,15 @@
 import java.util.HashSet;
 import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import fx.EffectRead;
-import types.Ref;
-import types.Type;
-import types.TypeCheckException;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.Effect;
+import descriptions.fx.EffectCheckException;
+import descriptions.fx.EffectRead;
+import descriptions.types.Ref;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import runtimes.Runtime;
 
 public class RefGet implements Expr {
 
@@ -21,12 +22,12 @@ public class RefGet implements Expr {
 	}
 
 	@Override
-	public Expr reduce(Runtime rtm) {
-		Expr loc = refToGet.reduce(rtm);
-		if (!(loc instanceof Location))
-			throw new RuntimeException("Can only dereference a location.");
-		Location location = (Location) loc;
-		return rtm.dereference(location);
+	public Value reduce(Runtime rtm, DescCtx descCtx) {
+		Value ref = refToGet.reduce(rtm, descCtx);
+		if (!(ref instanceof Location)) {
+			throw new RuntimeException("Trying to call `get` on something which is not a reference.");
+		}
+		return rtm.deref((Location) ref);	
 	}
 
 	@Override
@@ -55,8 +56,8 @@ public class RefGet implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
-		Type refToGetType = refToGet.typeCheck(ctx);
+	public Type typeCheck(VarCtx ctx,DescCtx descCtx) throws TypeCheckException, EffectCheckException {
+		Type refToGetType = refToGet.typeCheck(ctx, descCtx);
 		if (!(refToGetType instanceof Ref))
 			throw new RuntimeException("Can only dereference a reference type.");
 		Ref reference = (Ref) refToGetType;
@@ -68,13 +69,5 @@ public class RefGet implements Expr {
 		return "(GET " + refToGet + ")";
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
-		Set<Effect> fx = new HashSet<>();
-		Ref refType = (Ref) refToGet.typeCheck(ctx);
-		fx.add(new EffectRead(refType.getRegion()));
-		return fx;
-	}
-	
 }
 

@@ -1,22 +1,17 @@
 package exprs;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Type;
-import types.TypeCheckException;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;	
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import runtimes.Runtime;
 
 public interface Expr {
 	
-	public Expr reduce(Runtime rtm);
+	public Value reduce(Runtime rtm, DescCtx descCtx);
 	
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException;
-	
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException;
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException;
 	
 	public boolean equals(Object other);
 	

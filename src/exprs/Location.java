@@ -1,33 +1,28 @@
 package exprs;
 
-import java.util.HashSet;
-import java.util.Set;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;
+import descriptions.regions.Region;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import regions.RegionConst;
-import types.Type;
+public class Location extends Value {
 
-public class Location implements Expr {
-
-	private RegionConst region;
-	private int location;
+	private Region region;
+	private Type type;
 	
-	public Location(RegionConst r, int l) {
-		this.region = r;
-		this.location = l;
-	}
-	
-	public int getLocation() {
-		return this.location;
+	public Location(Region region, Type t) {
+		this.region = region;
+		this.type = t;
 	}
 	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + location;
+		result = prime * result + ((region == null) ? 0 : region.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -40,29 +35,27 @@ public class Location implements Expr {
 		if (getClass() != obj.getClass())
 			return false;
 		Location other = (Location) obj;
-		if (location != other.location)
+		if (region == null) {
+			if (other.region != null)
+				return false;
+		} else if (!region.equals(other.region))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
 			return false;
 		return true;
 	}
 
 	@Override
-	public Expr reduce(Runtime rtm) {
-		return this;
-	}
-
-	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws EffectCheckException, TypeCheckException {
 		throw new RuntimeException("Location is a runtime form and does not typecheck.");
 	}
 
 	@Override
 	public String toString() {
-		return "(LOCATION " + location + ")";
-	}
-
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
+		return "(LOCATION " + region + type + ")";
 	}
 	
 }

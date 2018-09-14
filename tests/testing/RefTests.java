@@ -2,20 +2,24 @@ package testing;
 
 import org.junit.Test;
 
+import ctxs.descriptions.DescCtx;
+import descriptions.types.Ref;
+import descriptions.types.Types;
 import exprs.IntConst;
 import exprs.Location;
-import regions.RegionConst;
-import types.Ref;
-import types.Region;
-import types.Types;
+import runtimes.Runtime;
+import runtimes.Standard;
+import utils.Pair;
 
 public class RefTests {
 
 	@Test
 	public void newRef() {
-		Utils.TestProg("(REF (REGION 1) Int 5)",
-				new Ref(Types.IntType(), new Region(1)),
-				new Location(new RegionConst(1), 0));
+		Pair<Runtime, DescCtx> rtm = Standard.StdPrelude();
+		Utils.TestProg("(NEW std-heap Int 5)",
+				rtm,
+				new Ref(Types.IntType(), rtm.first().getHeap("std-heap")),
+				new Location(rtm.first().getHeap("std-heap"), Types.IntType()));
 	}
 	
 	@Test
@@ -26,7 +30,7 @@ public class RefTests {
 	}
 	
 	@Test
-	public void letWithRef() {
+	public void letWithRef() { 
 		Utils.TestProg("(LET ((loc (REF (REGION 1) Int 5))) (GET loc))",
 				Types.IntType(),
 				new IntConst(5));

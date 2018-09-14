@@ -2,12 +2,10 @@ package testing;
 
 import org.junit.Test;
 
+import descriptions.types.Types;
 import exprs.IntConst;
-import types.Types;
 
 public class BlockTests {
-
-	
 	@Test
 	public void beginBlock() {
 		Utils.TestProg("(LET ((r (REF (REGION 1) Int 5)))"

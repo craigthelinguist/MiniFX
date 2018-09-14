@@ -3,15 +3,16 @@ package exprs;
 import java.util.HashSet;
 import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.Effect;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
+import runtimes.Runtime;
 
-public class BoolConst implements Expr {
+public class BoolConst extends Value {
 	
 	private boolean value;
 	
@@ -24,21 +25,10 @@ public class BoolConst implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime ctx) {
-		return this;
-	}
-
-	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws EffectCheckException, TypeCheckException {
 		return Types.BoolType();
 	}
 	
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException {
-		return new HashSet<>();
-	}
-	
-
 	public boolean asBool() {
 		return this.value;
 	}

@@ -1,14 +1,11 @@
 package exprs;
 
-import java.util.HashSet;
-import java.util.Set;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.types.Type;
+import runtimes.Runtime;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import types.Type;
-
-public class Var implements Expr {
+public class Var extends Value {
 
 	private String name;
 	
@@ -17,21 +14,17 @@ public class Var implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime ctx) {
-		if (!ctx.hasBinding(name))
+	public Value reduce(Runtime rtm, DescCtx descCtx) {
+		if (!rtm.hasBinding(name))
 			throw new RuntimeException("Variable " + name + " is undefined");
-		return ctx.lookupVariable(name);
-	}
-
-	@Override
-	public Type typeCheck(TypeContext ctx) {
-		if (ctx.hasBinding(name)) return ctx.lookupType(name);
-		else throw new RuntimeException("Typechecking variable " + name + " that isn't defined.");
+		return rtm.lookupVariable(name);
 	}
 	
 	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) {
+		return ctx
+				.lookup(name)
+				.orElseThrow(() -> new RuntimeException("Variable " + name + " is undefined."));
 	}
 	
 	public String getName() {

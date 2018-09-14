@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import descriptions.types.Subr;
+import descriptions.types.Types;
 import exprs.Exprs;
 import exprs.IntConst;
-import types.Arrow;
-import types.Types;
 
 public class FunctionTests {
 
@@ -19,14 +19,14 @@ public class FunctionTests {
 	@Test
 	public void lambdaOneArg() {
 		Utils.TestProg("(LAMBDA ((x Int)) PURE x)",
-				Arrow.Pure(Types.IntType(), Types.IntType()),
+				Subr.Pure(Types.IntType(), Types.IntType()),
 				Utils.IdIntFunction());
 	}
 	
 	@Test
 	public void lambdaTwoArgs() {
 		Utils.TestProg("(LAMBDA ((x Int) (y Int)) PURE (+ x y))",
-				Arrow.Pure(
+				Subr.Pure(
 					Arrays.asList(
 							Types.IntType(),
 							Types.IntType()),
@@ -37,7 +37,7 @@ public class FunctionTests {
 	@Test
 	public void lambdaBools() {
 		Utils.TestProg("(LAMBDA ((x Bool) (y Bool)) PURE (not (and x y)))",
-				Arrow.Pure(Arrays.asList(
+				Subr.Pure(Arrays.asList(
 					Types.BoolType(),
 					Types.BoolType()),
 				Types.BoolType()),

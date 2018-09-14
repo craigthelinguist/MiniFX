@@ -4,6 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import descriptions.fx.Effect;
+import descriptions.fx.EffectAlloc;
+import descriptions.fx.EffectRead;
+import descriptions.fx.EffectUnion;
+import descriptions.fx.EffectVar;
+import descriptions.fx.EffectWrite;
+import descriptions.fx.Effects;
+import descriptions.regions.Region;
+import descriptions.regions.RegionUnion;
+import descriptions.regions.RegionVar;
+import descriptions.types.Type;
+import descriptions.types.Types;
 import exprs.Application;
 import exprs.ArithOper;
 import exprs.Begin;
@@ -19,17 +31,6 @@ import exprs.Let;
 import exprs.RefNew;
 import exprs.RefSet;
 import exprs.Var;
-import fx.Effect;
-import fx.EffectAlloc;
-import fx.EffectRead;
-import fx.EffectUnion;
-import fx.EffectVar;
-import fx.EffectWrite;
-import fx.Effects;
-import regions.RegionConst;
-import types.Region;
-import types.Type;
-import types.Types;
 
 public class Parser {
 
@@ -37,7 +38,7 @@ public class Parser {
 	private int i;
 
 	private static List<String> KEYWORDS = Arrays.asList
-		("LAMBDA", "LET", "GET", "SET", "REF", "IF", "BEGIN", "REGION");
+		("LAMBDA", "LET", "GET", "SET", "NEW", "IF", "BEGIN", "REGION");
 	private static List<String> SIMPLE_KEYWORDS = Arrays.asList
 		("NEW-REGION", "NIL");
 	private static List<String> EFFECT_KEYWORDS = Arrays.asList
@@ -138,17 +139,10 @@ public class Parser {
 		case "IF": return parseIf();
 		case "LAMBDA": return parseLambda();
 		case "LET": return parseLet();
-		case "REF": return parseNewRef();
+		case "NEW": return parseNewRef();
 		case "SET": return parseSet();
 		default: throw new ParseException(tokens.get(i) + " is not a keyword.");
 		}
-	}
-
-	private RegionConst parseRegion() throws ParseException {
-		if (!gobble("REGION"))
-			throw new ParseException("Expected REGION when parsing a region expression.");
-		int regionID = Integer.parseInt(tokens.get(i++));
-		return new RegionConst(regionID);
 	}
 	
 	private RefSet parseSet() throws ParseException {
@@ -159,13 +153,27 @@ public class Parser {
 		return new RefSet(ref, newValue);
 	}
 
+	private Region parseRegion() throws ParseException {
+		if (!gobble(LEFT_PAREN)) {
+			if (!isIdentifier(tokens.get(i)))
+				throw new ParseException("Failed parsing effect variable: " + tokens.get(i) + " is not a valid identifier.");
+			return new RegionVar(tokens.get(i++));
+		} else if (match("UNION")) {
+			List<Region> regions = new ArrayList<>();
+			while (!gobble(RIGHT_PAREN)) {
+				regions.add(parseRegion());
+			}
+			return new RegionUnion(regions);
+			
+		} else {
+			throw new ParseException("Expected region variable or UNION");
+		}
+	}
+	
 	private RefNew parseNewRef() throws ParseException {
-		if (!gobble("REF"))
+		if (!gobble("NEW"))
 			throw new ParseException("Expected REF when parsing a new expression.");
-		if (!gobble("("))
-			throw new ParseException("Expected open brakcet to start region in new ref.");
-		RegionConst region = parseRegion();
-		gobble(")");
+		Region region = parseRegion();
 		Type type = parseType();
 		Expr initValue = parseExpr();
 		return new RefNew(region, type, initValue);
@@ -407,28 +415,25 @@ public class Parser {
 			throw new ParseException("Failed parsing effect variable: " + tokens.get(i) + " is not a valid identifier.");
 		return new EffectVar(tokens.get(i++));
 	}
-	
+
 	private Effect parseWriteEffect() throws ParseException {
 		if (!gobble("WRITE"))
 			throw new ParseException("Expected WRITE while parsing a write effect.");
-		int rc = Integer.parseInt(tokens.get(i++));
-		return new EffectWrite(new Region(rc));
+		return new EffectWrite(parseRegion());
 	}
 	
 	private Effect parseReadEffect() throws ParseException {
 		if (!gobble("READ"))
 			throw new ParseException("Expected READ while parsing a read effect.");
-		int rc = Integer.parseInt(tokens.get(i++));
-		return new EffectRead(new Region(rc));
+		return new EffectRead(parseRegion());
 	}
 	
 	private Effect parseAllocEffect() throws ParseException {
 		if (!gobble("ALLOC"))
 			throw new ParseException("Expected ALLOC while parsing an allocation effect.");
-		int rc = Integer.parseInt(tokens.get(i++));
-		return new EffectAlloc(new Region(rc));
+		return new EffectAlloc(parseRegion());
 	}
-	
+
 	private Effect parsePureEffect() throws ParseException {
 		if (!gobble("PURE"))
 			throw new ParseException("Expected PURE while parsing the pure effect.");

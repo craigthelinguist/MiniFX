@@ -1,16 +1,14 @@
 package exprs;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Type;
-import types.TypeCheckException;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import runtimes.Runtime;
 
 public class Begin implements Expr {
 
@@ -29,32 +27,23 @@ public class Begin implements Expr {
 	}
 
 	@Override
-	public Expr reduce(Runtime ctx) {
-		Expr result = null;
+	public Value reduce(Runtime ctx, DescCtx descCtx) {
+		Value result = null;
 		for (Expr expr : exprs) {
-			result = expr.reduce(ctx);
+			result = expr.reduce(ctx, descCtx);
 		}
 		return result;
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException {
 		Type type = null;
 		for (Expr expr : exprs) {
-			type = expr.typeCheck(ctx);
+			type = expr.typeCheck(ctx, descCtx);
 		}
 		return type;
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Set<Effect> subfx = new HashSet<>();
-		for (Expr expr : exprs) {
-			subfx.addAll(expr.effectCheck(ctx));
-		}
-		return subfx;
-	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

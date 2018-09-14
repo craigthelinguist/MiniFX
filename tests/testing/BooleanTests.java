@@ -3,9 +3,9 @@ package testing;
 
 import org.junit.Test;
 
+import descriptions.types.Types;
 import exprs.Exprs;
 import exprs.IntConst;
-import types.Types;
 
 public class BooleanTests {
 

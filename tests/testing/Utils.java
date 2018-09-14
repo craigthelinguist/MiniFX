@@ -11,22 +11,24 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;
+import descriptions.fx.Effects;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
 import exprs.ArithOper;
 import exprs.BoolOper;
 import exprs.Expr;
 import exprs.Lambda;
 import exprs.Var;
-import fx.EffectCheckException;
-import fx.Effects;
 import parsing.LexException;
 import parsing.Lexer;
 import parsing.ParseException;
 import parsing.Parser;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
+import runtimes.Runtime;
+import utils.Pair;
 
 public class Utils {
 
@@ -56,9 +58,9 @@ public class Utils {
 		return Compile(StringFromFile(file));
 	}
 	
-	public static void ShouldType(Expr ast, Type expected) {
+	public static void ShouldType(Expr ast, Type expected, DescCtx descCtx) {
 		try {
-			Type actual = ast.typeCheck(new TypeContext());
+			Type actual = ast.typeCheck(VarCtx.Empty(), descCtx);
 			assertTrue(Types.equivalent(expected, actual));
 		}
 		catch (TypeCheckException | EffectCheckException e) {
@@ -68,10 +70,10 @@ public class Utils {
 		}
 	}
 	
-	public static void ShouldntType(String prog) {
+	public static void ShouldntType(String prog, VarCtx varCtx, DescCtx descCtx) {
 		try {
 			Expr ast = Compile(prog);
-			ast.typeCheck(new TypeContext());
+			ast.typeCheck(varCtx, descCtx);
 		}
 		catch (ParseException | LexException e) {
 			fail("Should have parsed and lexed, but it didn't.");
@@ -83,10 +85,14 @@ public class Utils {
 		}
 	}
 	
-	public static void ShouldntEffectCheck(String prog) {
+	public static void ShouldntType(String prog) {
+		ShouldntType(prog, VarCtx.Empty(), DescCtx.Empty());
+	}
+	
+	public static void ShouldntEffectCheck(String prog, VarCtx varCtx, DescCtx descCtx) {
 		try {
 			Expr ast = Compile(prog);
-			ast.typeCheck(new TypeContext());
+			ast.typeCheck(varCtx, descCtx);
 		}
 		catch (ParseException | LexException e) {
 			fail("Should have parsed and lexed, but it didn't.");
@@ -99,16 +105,24 @@ public class Utils {
 		}
 	}
 	
+	public static void ShouldntEffectCheck(String prog) {
+		ShouldntEffectCheck(prog, VarCtx.Empty(), DescCtx.Empty());
+	}
+	
 	public static void ShouldReduceTo(Expr ast, Expr result) {
-		Expr astReduced = ast.reduce(new Runtime());
+		ShouldReduceTo(ast, result, new Runtime(), DescCtx.Empty());
+	}
+	
+	public static void ShouldReduceTo(Expr ast, Expr result, Runtime rtm, DescCtx descCtx) {
+		Expr astReduced = ast.reduce(rtm, descCtx);
 		assertEquals(astReduced, result);
 	}
 	
-	public static void TestProg(String input, Type expectedType, Expr expectedResult) {
+	public static void TestProg(String input, Pair<Runtime, DescCtx> runtime, Type expectedType, Expr expectedResult) {
 		try {
 			Expr ast = Compile(input);
-			ShouldType(ast, expectedType);
-			ShouldReduceTo(ast, expectedResult);
+			ShouldType(ast, expectedType, runtime.second());
+			ShouldReduceTo(ast, expectedResult, runtime.first(), runtime.second());
 		}
 		catch (ParseException pe) {
 			System.err.println("Error parsing");
@@ -120,6 +134,13 @@ public class Utils {
 			le.printStackTrace();
 			fail();
 		}
+	}
+	
+	public static void TestProg(String input, Type expectedType, Expr expectedResult) {
+		TestProg(input,
+				new Pair<Runtime, DescCtx>(new Runtime(), DescCtx.Empty()),
+				expectedType,
+				expectedResult);
 	}
 	
 	public static void TestProg(File file, Type expectedType, Expr expectedResult) {

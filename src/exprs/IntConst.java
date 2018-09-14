@@ -1,15 +1,11 @@
 package exprs;
 
-import java.util.HashSet;
-import java.util.Set;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.types.Type;
+import descriptions.types.Types;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import types.Type;
-import types.Types;
-
-public class IntConst implements Expr {
+public class IntConst extends Value {
 
 	private int value;
 	
@@ -18,19 +14,13 @@ public class IntConst implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime ctx) {
-		return this;
-	}
-
-	@Override
-	public Type typeCheck(TypeContext ctx) {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) {
 		return Types.IntType();
 	}
 
 	public int asInt() {
 		return value;
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -59,9 +49,4 @@ public class IntConst implements Expr {
 		return "" + value;
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) {
-		return new HashSet<>();
-	}
-	
 }

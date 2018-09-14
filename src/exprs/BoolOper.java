@@ -5,14 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
-import types.Bool;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.Effect;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Bool;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
+import runtimes.Runtime;
 
 public class BoolOper implements Expr {
 
@@ -73,29 +74,29 @@ public class BoolOper implements Expr {
 	}
 	
 	@Override
-	public Expr reduce(Runtime rtm) {
+	public Value reduce(Runtime rtm, DescCtx descCtx) {
 		boolean unit;
 		switch(operator) {
 		case AND: 
 			for (Expr arg : args) {
-				BoolConst bool = (BoolConst) arg.reduce(rtm);
+				BoolConst bool = (BoolConst) arg.reduce(rtm, descCtx);
 				if (!bool.asBool()) return Exprs.False();
 			}
 			return Exprs.True();
 		case OR:
 			for (Expr arg : args) {
-				BoolConst bool = (BoolConst) arg.reduce(rtm);
+				BoolConst bool = (BoolConst) arg.reduce(rtm, descCtx);
 				if (bool.asBool()) return Exprs.True();
 			}
 			return Exprs.False();
 		case XOR:
 			unit = ((BoolConst)args[0]).asBool();
 			for (int i = 1; i < args.length; i++) {
-				unit = ((BoolConst)args[i].reduce(rtm)).asBool() != unit;
+				unit = ((BoolConst)args[i].reduce(rtm, descCtx)).asBool() != unit;
 			}
 			return unit ? Exprs.True() : Exprs.False();
 		case NOT:
-			boolean val = ((BoolConst)args[0].reduce(rtm)).asBool();
+			boolean val = ((BoolConst)args[0].reduce(rtm, descCtx)).asBool();
 			return val ? Exprs.False() : Exprs.True();
 		default:
 			throw new RuntimeException("Operator " + operator + " not yet implemented.");
@@ -103,22 +104,13 @@ public class BoolOper implements Expr {
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException {
 		for (Expr expr : args) {
-			Type t = expr.typeCheck(ctx);
+			Type t = expr.typeCheck(ctx, descCtx);
 			if (!(t instanceof Bool))
 				throw new RuntimeException("Must supply Bools to a boolean operator");
 		}
 		return Types.BoolType();
-	}
-	
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Set<Effect> subfx = new HashSet<>();
-		for (Expr expr : args) {
-			subfx.addAll(expr.effectCheck(ctx));
-		}
-		return subfx;
 	}
 	
 	@Override

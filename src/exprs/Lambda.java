@@ -1,24 +1,21 @@
 package exprs;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import fx.Effects;
-import types.Arrow;
-import types.Type;
-import types.TypeCheckException;
-import types.Types;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.Effect;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Subr;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import descriptions.types.Types;
+import runtimes.Runtime;
 
-public class Lambda implements Expr {
+public class Lambda extends Value {
 
 	private String[] argNames;
-	private Effect effectAnnotation;
 	private Type[] argTypes;
 	private Expr lambdaBody;
 	private Type outputType;
@@ -28,7 +25,6 @@ public class Lambda implements Expr {
 			throw new RuntimeException("Need a type for every argument.");
 		this.argNames = new String[argNames2.size()];
 		this.argTypes = new Type[argNames2.size()];
-		this.effectAnnotation = effect;
 		for (int i = 0; i < argNames2.size(); i++) {
 			this.argNames[i] = argNames2.get(i).getName();
 			this.argTypes[i] = argTypes.get(i);
@@ -42,12 +38,7 @@ public class Lambda implements Expr {
 		this.lambdaBody = body;
 	}
 	
-	@Override
-	public Expr reduce(Runtime ctx) {
-		return this;
-	}
-	
-	public Expr apply(Runtime rtm, Expr[] actualArgs) {
+	public Value apply(Runtime rtm, DescCtx descCtx, Expr[] actualArgs) {
 		if (argNames.length == 0 && actualArgs.length != 1)
 			throw new RuntimeException("Wrong number of arguments supplied to function.");
 		if (argNames.length > 0 && actualArgs.length != argNames.length)
@@ -55,33 +46,24 @@ public class Lambda implements Expr {
 		
 		Runtime extended = rtm;
 		if (argNames.length > 0) {
-			Expr[] argsReduced = new Expr[actualArgs.length];
+			Value[] argsReduced = new Value[actualArgs.length];
 			for (int i = 0; i < argsReduced.length; i++) {
-				argsReduced[i] = actualArgs[i].reduce(rtm);
+				argsReduced[i] = actualArgs[i].reduce(rtm, descCtx);
 			}
 			extended = rtm.extend(argNames, argsReduced);
 		}
 		
-		Expr lambBodyReduced = lambdaBody.reduce(extended);
-		return lambBodyReduced;
+		
+		return lambdaBody.reduce(extended, descCtx);
 	}
 	
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
-		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes));
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException {
+		Type bodyType = lambdaBody.typeCheck(ctx.extend(argNames, argTypes), descCtx);
 		this.outputType = bodyType;
-		Set<Effect> bodyFx = lambdaBody.effectCheck(ctx.extend(argNames, argTypes));
-		Set<Effect> annotFx  = effectAnnotation.toSet();
-		if (!annotFx.containsAll(bodyFx))
-			throw new EffectCheckException("Failed to effect check.");
-		return Arrow.Pure(argTypes, bodyType);
+		return Subr.Pure(argTypes, bodyType);
 	}
 
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException {
-		return new HashSet<>();
-	}
-	
 	public int numArgs() {
 		return this.argTypes.length;
 	}

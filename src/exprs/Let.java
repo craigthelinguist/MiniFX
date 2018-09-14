@@ -1,16 +1,14 @@
 package exprs;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import ctxs.Runtime;
-import ctxs.TypeContext;
-import fx.Effect;
-import fx.EffectCheckException;
-import types.Type;
-import types.TypeCheckException;
+import ctxs.descriptions.DescCtx;
+import ctxs.vars.VarCtx;
+import descriptions.fx.EffectCheckException;
+import descriptions.types.Type;
+import descriptions.types.TypeCheckException;
+import runtimes.Runtime;
 
 public class Let implements Expr {
 
@@ -37,36 +35,23 @@ public class Let implements Expr {
 	}
 
 	@Override
-	public Expr reduce(Runtime rtm) {
-		Expr[] bindingsReduced = new Expr[toBinds.length];
+	public Value reduce(Runtime rtm, DescCtx descCtx) {
+		Value[] bindingsReduced = new Value[toBinds.length];
 		for (int i = 0; i < toBinds.length; i++) {
-			bindingsReduced[i] = toBinds[i].reduce(rtm);
+			bindingsReduced[i] = toBinds[i].reduce(rtm, descCtx);
 			rtm = rtm.extend(varNames[i], bindingsReduced[i]);
 		}
-		return body.reduce(rtm);
+		return body.reduce(rtm, descCtx);
 	}
 
 	@Override
-	public Type typeCheck(TypeContext ctx) throws TypeCheckException, EffectCheckException {
+	public Type typeCheck(VarCtx ctx, DescCtx descCtx) throws TypeCheckException, EffectCheckException {
 		Type[] types = new Type[toBinds.length];
 		for (int i = 0; i < toBinds.length; i++) {
-			types[i] = toBinds[i].typeCheck(ctx);
+			types[i] = toBinds[i].typeCheck(ctx, descCtx);
 			ctx = ctx.extend(varNames[i], types[i]);
 		}
-		return body.typeCheck(ctx);
-	}
-	
-	@Override
-	public Set<Effect> effectCheck(TypeContext ctx) throws EffectCheckException, TypeCheckException {
-		Set<Effect> fx = new HashSet<>();
-		for (Expr expr : toBinds) {
-			fx.addAll(expr.effectCheck(ctx));
-		}
-		Type[] types = new Type[toBinds.length];
-		for (int i = 0; i < toBinds.length; i++) {
-			types[i] = toBinds[i].typeCheck(ctx);
-		}
-		return body.effectCheck(ctx.extend(varNames, types));
+		return body.typeCheck(ctx, descCtx);
 	}
 	
 	@Override

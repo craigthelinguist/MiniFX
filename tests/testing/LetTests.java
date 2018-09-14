@@ -2,8 +2,8 @@ package testing;
 
 import org.junit.Test;
 
+import descriptions.types.Types;
 import exprs.IntConst;
-import types.Types;
 
 public class LetTests {
 
