@@ -5,6 +5,7 @@ import org.junit.Test;
 import descriptions.types.Types;
 import exprs.Exprs;
 import exprs.IntConst;
+import runtimes.Standard;
 
 public class ScopingTests {
 
@@ -19,13 +20,14 @@ public class ScopingTests {
 	
 	@Test
 	public void testReferenceShadowing() {
-		Utils.TestProg("(LET ((r (REF (REGION 1) Int 5)))"
+		Utils.TestProg("(LET ((r (NEW std-heap Int 5)))"
 				     + "     (BEGIN"
-				     + "         (LET ((r (REF (REGION 2) Int 5)))"
+				     + "         (LET ((r (NEW std-heap Int 5)))"
 				     + "             (SET r 20))"
 				     + "         (GET r)))",
-			   Types.IntType(),
-			   new IntConst(5));
+				     Standard.StdPrelude(),
+				     Types.IntType(),
+				     new IntConst(5));
 	}
 
 	@Test
